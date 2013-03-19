@@ -832,13 +832,11 @@ __device__ void initSubParticlesAndAddToList
     const float2& vel
 )
 {
-    int idH = id | 0x80000000;
-
-    // add high res particles to the list
-    dParticleIDsHigh[numParticlesHigh + 0] = 4*id + 0;
-    dParticleIDsHigh[numParticlesHigh + 1] = 4*id + 1;
-    dParticleIDsHigh[numParticlesHigh + 2] = 4*id + 2;
-    dParticleIDsHigh[numParticlesHigh + 3] = 4*id + 3;
+    // add high res particles to the list & and mark as transient
+    dParticleIDsHigh[numParticlesHigh + 0] = (4*id + 0) | 0x80000000;
+    dParticleIDsHigh[numParticlesHigh + 1] = (4*id + 1) | 0x80000000;
+    dParticleIDsHigh[numParticlesHigh + 2] = (4*id + 2) | 0x80000000;
+    dParticleIDsHigh[numParticlesHigh + 3] = (4*id + 3) | 0x80000000;
 
     #define DIR_LEN 0.35355339f
     float h = gdEffectiveRadius;
@@ -862,7 +860,76 @@ __device__ void initSubParticlesAndAddToList
     dParticleVelocitiesHigh[8*id + 7] = vel.y;
 }
 //-----------------------------------------------------------------------------
-//  Defintions of global kernels
+__device__ inline void adjustPosition 
+(
+    float2& posH, 
+    const float2& posL 
+)
+{
+    float2 posji;
+    posji.x = posH.x - posL.x;
+    posji.y = posH.y - posL.y;
+    float dist = norm(posji);
+
+    posH.x = posL.x + gdEffectiveRadiusHigh/dist*posji.x;
+    posH.y = posL.y + gdEffectiveRadiusHigh/dist*posji.y;
+}
+//-----------------------------------------------------------------------------
+
+//=============================================================================
+//  GLOBAL KERNELS
+//=============================================================================
+
+//-----------------------------------------------------------------------------
+__global__ void adjustTransientHighD
+(
+    float* const dPositionsHigh,
+    float* const dVelocitiesHigh,
+    const float* const dPositionsLow,
+    const float* const dVelocitiesLow,
+    const int* const dTransientIDsLow,
+    unsigned int numTransientLow
+)
+{
+    unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if (idx >= numTransientLow)
+    {
+        return;
+    }
+
+    // get id of the particle
+    unsigned int id = dTransientIDsLow[idx] & 0x7FFFFFFF;    
+
+    // get pos and vel
+    float2 pos;
+    pos.x = dPositionsLow[2*id + 0];
+    pos.y = dPositionsLow[2*id + 1];
+    float2 vel;
+    vel.x = dVelocitiesLow[2*id + 0]; 
+    vel.y = dVelocitiesLow[2*id + 1]; 
+
+    // adjust the positions of the child particles
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        float2 posH;
+        posH.x = dPositionsHigh[8*id + 2*i + 0];
+        posH.y = dPositionsHigh[8*id + 2*i + 1];
+        adjustPosition(posH, pos);
+        dPositionsHigh[8*id + 2*i + 0] = posH.x;
+        dPositionsHigh[8*id + 2*i + 1] = posH.y;
+    }
+
+    // adjust the velocities of the child particles
+    dVelocitiesHigh[8*id + 0] = vel.x;
+    dVelocitiesHigh[8*id + 1] = vel.y;
+    dVelocitiesHigh[8*id + 2] = vel.x;
+    dVelocitiesHigh[8*id + 3] = vel.y;
+    dVelocitiesHigh[8*id + 4] = vel.x;
+    dVelocitiesHigh[8*id + 5] = vel.y;
+    dVelocitiesHigh[8*id + 6] = vel.x;
+    dVelocitiesHigh[8*id + 7] = vel.y;
+}
 //-----------------------------------------------------------------------------
 __global__ void initParticleIDs 
 (   
@@ -1255,7 +1322,7 @@ __global__ void computeParticleAccelerationAndAdvance
     // get id and state of the particle
     unsigned int id = dParticleIDs[idx];    
     unsigned int state = id >> 31;
-    id = id & 0xFFFFFFF;
+    id = id & 0x7FFFFFFF;
 
     float2 pos;
     pos.x = dParticlePositions[2*id + 0];
@@ -1350,8 +1417,8 @@ __global__ void computeParticleAccelerationAndAdvance
     if (pos.x > 0.6f && state == 0)
     {
         // add particle to id list (Low) and mark as transient
-        int index = atomicAdd(dParticleCount, 1);
-        dParticleIDsNew[index] = id | 0x80000000;
+        //int index = atomicAdd(dParticleCount, 1);
+        //dParticleIDsNew[index] = id | 0x80000000;
         
         // add particle id to transient list (low)
         int numTransient = atomicAdd(dTransientParticleCountLow, 1);
@@ -2470,6 +2537,41 @@ void WCSPHSolver::relaxTransient (unsigned char activeID)
 
 
     CUDA_SAFE_CALL( cudaMemset(mdTransientParticleCountHigh, 0, sizeof(int)) );
+}
+//-----------------------------------------------------------------------------
+void WCSPHSolver::adjustTransientHigh(unsigned char activeID)
+{
+    // get number of particles in transition (low) from device
+    CUDA_SAFE_CALL( cudaMemcpy
+    (
+        &mTransientParticleCountLow, 
+        mdTransientParticleCountLow, 
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ) );
+
+    // return if there are no particles in transition (low) 
+    if (mTransientParticleCountLow == 0)
+    {
+        return;
+    }
+
+    // compute grid dimensions need for particles in transition (low)
+    mGridDimTransientLow.x = static_cast<unsigned int>(std::ceil
+    (
+        static_cast<float>(mTransientParticleCountLow)/mBlockDim.x
+    ));
+
+    adjustTransientHighD<<<mGridDimTransientLow, mBlockDim>>>
+    (
+        mFluidParticlesHigh->mdPositions,
+        mFluidParticlesHigh->mdVelocities,
+        mFluidParticles->mdPositions,
+        mFluidParticles->mdVelocities,
+        mdTransientIDsLow,
+        mTransientParticleCountLow
+    );
+
 }
 //-----------------------------------------------------------------------------
 void WCSPHSolver::initBoundaries () const

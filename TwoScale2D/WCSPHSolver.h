@@ -71,7 +71,7 @@ private:
     inline void computePressureDensityHigh(unsigned int activeID);
     inline void updatePositionsHigh (unsigned char activeID);
     inline void relaxTransient (unsigned char activeID);
-    inline void adjustPositions();
+    inline void adjustTransientHigh (unsigned char activeID);
 
     float mDomainOrigin[2];
     float mDomainEnd[2];
