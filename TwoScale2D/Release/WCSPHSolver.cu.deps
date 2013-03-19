@@ -982,11 +982,11 @@ c:\program files\nvidia gpu computing toolkit\cuda\v5.0\include\thrust\detail\ba
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include\thrust/detail/trivial_sequence.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include\thrust/detail/backend/omp/sort.h
 c:\program files\nvidia gpu computing toolkit\cuda\v5.0\include\thrust\detail\backend\omp\sort.inl
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\WCSPHSolver.h
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\ParticleSystem.h
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\stdutil.h
+c:\users\arno\desktop\twoscalesplit\twoscale2d\WCSPHSolver.h
+c:\users\arno\desktop\twoscalesplit\twoscale2d\ParticleSystem.h
+c:\users\arno\desktop\twoscalesplit\twoscale2d\stdutil.h
 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\sstream
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\OpenGL\OpenGL.h
+c:\users\arno\desktop\twoscalesplit\twoscale2d\OpenGL\OpenGL.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\gl\glew.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\GL/glu.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\GL/gl.h
@@ -1059,7 +1059,7 @@ C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\ime_cmodes.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\GL/gl.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\GL/glu.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\gl\freeglut_ext.h
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\CUDA\cuda.h
+c:\users\arno\desktop\twoscalesplit\twoscale2d\CUDA\cuda.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include\cuda.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include\cuda_runtime.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include\cuda_gl_interop.h
@@ -1071,4 +1071,4 @@ c:\program files\nvidia gpu computing toolkit\cuda\v5.0\include\texture_types.h
 c:\program files\nvidia gpu computing toolkit\cuda\v5.0\include\vector_types.h
 c:\program files\nvidia gpu computing toolkit\cuda\v5.0\include\host_defines.h
 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\GL/gl.h
-c:\users\arno\desktop\twoscale2d-master\twoscale2d\ParticleSystem.inl
+c:\users\arno\desktop\twoscalesplit\twoscale2d\ParticleSystem.inl

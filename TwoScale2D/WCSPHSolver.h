@@ -71,6 +71,7 @@ private:
     inline void computePressureDensityHigh(unsigned int activeID);
     inline void updatePositionsHigh (unsigned char activeID);
     inline void relaxTransient (unsigned char activeID);
+    inline void adjustPositions();
 
     float mDomainOrigin[2];
     float mDomainEnd[2];
@@ -99,10 +100,15 @@ private:
 
     ParticleSystem* mBoundaryParticles;
 
-    dim3 mGridDimTransient;
-    int mTransientParticleCount;
-    int* mdTransientParticleCount;
-    int* mdTransientIDs;
+    dim3 mGridDimTransientHigh;
+    int mTransientParticleCountHigh;
+    int* mdTransientParticleCountHigh;
+    int* mdTransientIDsHigh;
+
+    dim3 mGridDimTransientLow;
+    int mTransientParticleCountLow;
+    int* mdTransientParticleCountLow;
+    int* mdTransientIDsLow;
 
     
     mutable bool mIsBoundaryInit;

@@ -1,42 +1,40 @@
-﻿Build started 3/19/2013 10:35:39 AM.
-     1>Project "C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D\TwoScale2D.vcxproj" on node 2 (build target(s)).
+﻿Build started 3/19/2013 1:41:13 PM.
+     1>Project "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\TwoScale2D.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\TwoScale2D.unsuccessfulbuild" because "AlwaysCreate" was specified.
        AddCudaCompileDeps:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D_MBCS /IC:\OpenCV2.1\include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" /I. /FIcuda_runtime.h /c C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D\WCSPHSolver.cu 
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D_MBCS /IC:\OpenCV2.1\include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" /I. /FIcuda_runtime.h /c C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu 
        AddCudaCompilePropsDeps:
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
        CudaBuild:
          Compiling CUDA source file WCSPHSolver.cu...
-         cmd.exe /C "C:\Users\Arno\AppData\Local\Temp\065c03f6b6e048f8ae71a523d15161b1.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D\WCSPHSolver.cu"
+         cmd.exe /C "C:\Users\Arno\AppData\Local\Temp\d03873effc0146019657720e76f7258d.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu"
          
-         C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D\WCSPHSolver.cu" 
+         C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu" 
          WCSPHSolver.cu
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(837): warning : variable "idH" was declared but never referenced
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(835): warning : variable "idH" was declared but never referenced
          
-         tmpxft_00000d34_00000000-2_WCSPHSolver.cudafe1.gpu
-         tmpxft_00000d34_00000000-7_WCSPHSolver.cudafe2.gpu
+         tmpxft_00000910_00000000-2_WCSPHSolver.cudafe1.gpu
+         tmpxft_00000910_00000000-7_WCSPHSolver.cudafe2.gpu
          WCSPHSolver.cu
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(837): warning : variable "idH" was declared but never referenced
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(835): warning : variable "idH" was declared but never referenced
          
-         tmpxft_00000d34_00000000-2_WCSPHSolver.cudafe1.cpp
-         tmpxft_00000d34_00000000-12_WCSPHSolver.ii
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(1956): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(1957): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(1971): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(1973): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(2174): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(2256): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScale2D-master/TwoScale2D/WCSPHSolver.cu(2410): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+         tmpxft_00000910_00000000-2_WCSPHSolver.cudafe1.cpp
+         tmpxft_00000910_00000000-12_WCSPHSolver.ii
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1964): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1965): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1979): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1981): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2182): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2264): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2418): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /IC:\OpenCV2.1\include /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
-         main.cpp
-     1>main.cpp(104): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+         All outputs are up-to-date.
        ManifestResourceCompile:
          All outputs are up-to-date.
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Arno\Desktop\TwoScale2D-master\Release\TwoScale2D.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\OpenCV2.1\lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\Win32" highgui210.lib cv210.lib cxcore210.lib glew32.lib cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\TwoScale2D.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Arno\Desktop\TwoScale2D-master\Release\TwoScale2D.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Arno\Desktop\TwoScale2D-master\Release\TwoScale2D.lib" /MACHINE:X86 Release\WCSPHSolver.cu.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Arno\Desktop\TwoScaleSplit\Release\TwoScale2D.exe" /INCREMENTAL /NOLOGO /LIBPATH:C:\OpenCV2.1\lib /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\lib\Win32" highgui210.lib cv210.lib cxcore210.lib glew32.lib cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Release\TwoScale2D.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Arno\Desktop\TwoScaleSplit\Release\TwoScale2D.pdb" /SUBSYSTEM:CONSOLE /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Arno\Desktop\TwoScaleSplit\Release\TwoScale2D.lib" /MACHINE:X86 Release\WCSPHSolver.cu.obj
          Release\TwoScale2D.exe.embed.manifest.res
          Release\cuda.obj
          Release\main.obj
@@ -52,20 +50,20 @@
          All outputs are up-to-date.
        LinkEmbedManifest:
          All outputs are up-to-date.
-         TwoScale2D.vcxproj -> C:\Users\Arno\Desktop\TwoScale2D-master\Release\TwoScale2D.exe
+         TwoScale2D.vcxproj -> C:\Users\Arno\Desktop\TwoScaleSplit\Release\TwoScale2D.exe
        PostBuildEvent:
-         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScale2D-master\Release\"
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScale2D-master\Release\"
+         echo copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScaleSplit\Release\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScaleSplit\Release\"
          :VCEnd
-         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScale2D-master\Release\"
+         copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart*.dll" "C:\Users\Arno\Desktop\TwoScaleSplit\Release\"
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart32_50_35.dll
          C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\cudart64_50_35.dll
                  2 file(s) copied.
        FinalizeBuildStatus:
          Deleting file "Release\TwoScale2D.unsuccessfulbuild".
          Touching "Release\TwoScale2D.lastbuildstate".
-     1>Done Building Project "C:\Users\Arno\Desktop\TwoScale2D-master\TwoScale2D\TwoScale2D.vcxproj" (build target(s)).
+     1>Done Building Project "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\TwoScale2D.vcxproj" (build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:23.57
+Time Elapsed 00:00:20.26
