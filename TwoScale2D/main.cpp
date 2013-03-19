@@ -31,6 +31,12 @@ void saveScreenshot (const std::string& filename);
 
 int main (int argc, char* argv[])
 {  
+    //unsigned int i = 1;
+
+    //std::cout << (i << 1) << std::endl;
+    //std::system("pause");
+
+
     cudaGLSetGLDevice(0); 
     glutInit(&argc, argv);
     glutInitContextVersion(3, 3);
