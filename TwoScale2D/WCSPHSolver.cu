@@ -357,20 +357,19 @@ __device__ inline void updateDensityCellComplement
     float& density, 
     const float2& pos,
     const float* const dParticlePositons, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs,
     int start, 
     int end,
-    unsigned int statei
+    unsigned char statei
 )
 {     
     float lambda[4] = {1.0f, 0.0f, 1.0f, 0.0f}; // smells
 
-
     for (int i = start; i < end; i++)
     {
         unsigned int j = dParticleIDs[i];    
-        unsigned int statej = j >> 31;
-        j = j & 0x7FFFFFFF;        
+        unsigned char statej = dStates[j];        
 
         float2 posj;
         posj.x = dParticlePositons[2*j + 0];
@@ -384,7 +383,7 @@ __device__ inline void updateDensityCellComplement
         
         if (dist <= gdEffectiveRadius)
         {
-            density += lambda[(statei << 1) | statej]*
+            density += lambda[((statei & 0x0001) << 1) | (statej & 0x0001)]*
                 (evaluateM4Kernel(dist) + evaluateM4KernelHigh(dist))/2.0f;
         }
     }
@@ -395,14 +394,20 @@ __device__ inline void updateDensityCellHigh
     float& density, 
     const float2& pos,
     const float* const dParticlePositions, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs,
     int start, 
-    int end
+    int end,
+    unsigned char statei
 )
 {
+    float lambda[4] = {1.0f, 0.0f, 1.0f, 1.0f};
+
     for (int i = start; i < end; i++)
     {
-        int j = dParticleIDs[i] & 0x7FFFFFFF;
+        int j = dParticleIDs[i];
+        unsigned char statej = dStates[j];
+
         float2 posj;
         posj.x = dParticlePositions[2*j + 0];
         posj.y = dParticlePositions[2*j + 1];
@@ -415,7 +420,45 @@ __device__ inline void updateDensityCellHigh
         
         if (dist <= gdEffectiveRadiusHigh)
         {
-            density += (evaluateM4Kernel(dist) + evaluateM4KernelHigh(dist))/2.0f;
+            density += lambda[((statei & 0x0001) << 1) | (statej & 0x0001)]*
+                (evaluateM4Kernel(dist) + evaluateM4KernelHigh(dist))/2.0f;
+        }
+    }
+}
+//-----------------------------------------------------------------------------
+__device__ inline void updateDensityCellComplementHigh
+(
+    float& density, 
+    const float2& pos,
+    const float* const dParticlePositions, 
+    const unsigned char* const dStates,
+    const int* const dParticleIDs,
+    int start, 
+    int end,
+    unsigned char statei
+)
+{
+    float lambda[4] = {1.0f, 1.0f, 1.0f, 0.0f};
+
+    for (int i = start; i < end; i++)
+    {
+        int j = dParticleIDs[i];
+        unsigned char statej = dStates[j];
+
+        float2 posj;
+        posj.x = dParticlePositions[2*j + 0];
+        posj.y = dParticlePositions[2*j + 1];
+
+        float2 posij;
+        posij.x = pos.x - posj.x;
+        posij.y = pos.y - posj.y;
+        
+        float dist = norm(posij);
+        
+        if (dist <= gdEffectiveRadiusHigh)
+        {
+            density += lambda[((statei & 0x0001) << 1) | (statej & 0x0001)]*
+                (evaluateM4Kernel(dist) + evaluateM4KernelHigh(dist))/2.0f;
         }
     }
 }
@@ -433,6 +476,7 @@ __device__ inline void updateAccCell
     const float* const dParticleDensities, 
     const float* const dParticlePressures, 
     const float* const dParticleVelocities, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs, 
     int start, 
     int end, 
@@ -441,10 +485,13 @@ __device__ inline void updateAccCell
 )
 {
     float dens2 = dens*dens;
+    float deleted[2] = {1.0f, 0.0f};
 
     for (int i = start; i < end; i++)
     {
         int j = dParticleIDs[i];
+        unsigned char statej = dStates[j];
+
         float2 posj;
         posj.x = dParticlePositions[2*j + 0];
         posj.y = dParticlePositions[2*j + 1];
@@ -461,6 +508,8 @@ __device__ inline void updateAccCell
 
         if (dist != 0.0f && dist < gdEffectiveRadius)
         {
+            float l = deleted[statej >> 1];
+
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
 
@@ -482,14 +531,14 @@ __device__ inline void updateAccCell
             evaluateGradientM4Kernel(gradI.x, gradI.y, posij, dist);
             evaluateGradientM4KernelHigh(gradJ.x, gradJ.y, posij, dist);
 
-            acc.x += coeff*(gradI.x + gradJ.x)/2.0f;
-            acc.y += coeff*(gradI.y + gradJ.y)/2.0f;
+            acc.x += l*coeff*(gradI.x + gradJ.x)/2.0f;
+            acc.y += l*coeff*(gradI.y + gradJ.y)/2.0f;
 
 
             float w = evaluateM4Kernel(dist);
             float w2 = evaluateM4KernelHigh(dist);
-            accT.x += posij.x*(w + w2)/2.0f;
-            accT.y += posij.y*(w + w2)/2.0f; 
+            accT.x += l*posij.x*(w + w2)/2.0f;
+            accT.y += l*posij.y*(w + w2)/2.0f; 
         }
     }
 
@@ -526,20 +575,22 @@ __device__ inline void updateAccCellComplement
     const float* const dParticleDensities, 
     const float* const dParticlePressures, 
     const float* const dParticleVelocities, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs, 
     int start, 
     int end,
-    unsigned int statei
+    unsigned char statei
 )
 {
     float lambda[4] = {1.0f, 0.0f, 1.0f, 0.0f}; // smells
+    float deleted[2] = {1.0f, 0.0f};
+
     float dens2 = dens*dens;
 
     for (int i = start; i < end; i++)
     {
         unsigned int j = dParticleIDs[i];    
-        unsigned int statej = j >> 31;
-        j = j & 0x7FFFFFFF;
+        unsigned char statej = dStates[j];
         
         float2 posj;
         posj.x = dParticlePositions[2*j + 0];
@@ -558,7 +609,8 @@ __device__ inline void updateAccCellComplement
         if (dist != 0.0f && dist < gdEffectiveRadius)
         {
 
-            float l = lambda[(statei << 1) | statej];
+            float l = lambda[((statei & 0x0001) << 1) | (statej & 0x0001)]*
+                deleted[statej >> 1];
 
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
@@ -605,16 +657,21 @@ __device__ inline void updateAccCellHigh
     const float* const dParticleDensities, 
     const float* const dParticlePressures, 
     const float* const dParticleVelocities, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs, 
     int start, 
-    int end
+    int end,
+    unsigned char statei
 )
 {
+    float lambda[4] = {1.0f, 0.0f, 1.0f, 1.0f};
     float dens2 = dens*dens;
 
     for (int i = start; i < end; i++)
     {
-        int j = dParticleIDs[i] & 0x7FFFFFFF;
+        int j = dParticleIDs[i];
+        unsigned char statej = dStates[j];
+
         float2 posj;
         posj.x = dParticlePositions[2*j + 0];
         posj.y = dParticlePositions[2*j + 1];
@@ -631,6 +688,8 @@ __device__ inline void updateAccCellHigh
 
         if (dist != 0.0f && dist < gdEffectiveRadiusHigh)
         {
+            float l = lambda[((statei & 0x0001) << 1) | (statej & 0x0001)];
+
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
 
@@ -652,13 +711,13 @@ __device__ inline void updateAccCellHigh
             evaluateGradientM4Kernel(gradI.x, gradI.y, posij, dist);
             evaluateGradientM4KernelHigh(gradJ.x, gradJ.y, posij, dist);
 
-            acc.x += coeff*(gradI.x + gradJ.x)/2.0f;
-            acc.y += coeff*(gradI.y + gradJ.y)/2.0f;
+            acc.x += l*coeff*(gradI.x + gradJ.x)/2.0f;
+            acc.y += l*coeff*(gradI.y + gradJ.y)/2.0f;
 
             float w = evaluateM4Kernel(dist);
             float w2 = evaluateM4KernelHigh(dist);
-            accT.x += posij.x*(w + w2)/2.0f;
-            accT.y += posij.y*(w + w2)/2.0f; 
+            accT.x += l*posij.x*(w + w2)/2.0f;
+            accT.y += l*posij.y*(w + w2)/2.0f; 
         }
     }
 }
@@ -723,18 +782,24 @@ __device__ inline void updateAccCellComplementHigh
     const float* const dParticleDensities, 
     const float* const dParticlePressures, 
     const float* const dParticleVelocities, 
+    const unsigned char* const dStates,
     const int* const dParticleIDs, 
     int start, 
     int end, 
     int startB, 
-    int endB
+    int endB,
+    unsigned char statei
 )
 {
+    float lambda[4] = {1.0f, 1.0f, 1.0f, 0.0f};
+    
     float dens2 = dens*dens;
 
     for (int i = start; i < end; i++)
     {
         int j = dParticleIDs[i];
+        unsigned char statej = dStates[j];
+
         float2 posj;
         posj.x = dParticlePositions[2*j + 0];
         posj.y = dParticlePositions[2*j + 1];
@@ -753,6 +818,7 @@ __device__ inline void updateAccCellComplementHigh
         {
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
+            float l = lambda[((statei & 0x0001) << 1) | (statej & 0x0001)];
 
             // compute artifcial velocity
             float2 velij;
@@ -772,13 +838,13 @@ __device__ inline void updateAccCellComplementHigh
             evaluateGradientM4Kernel(gradI.x, gradI.y, posij, dist);
             evaluateGradientM4KernelHigh(gradJ.x, gradJ.y, posij, dist);
 
-            acc.x += coeff*(gradI.x + gradJ.x)/2.0f;
-            acc.y += coeff*(gradI.y + gradJ.y)/2.0f;
+            acc.x += l*coeff*(gradI.x + gradJ.x)/2.0f;
+            acc.y += l*coeff*(gradI.y + gradJ.y)/2.0f;
 
             float w = evaluateM4Kernel(dist);
             float w2 = evaluateM4KernelHigh(dist);
-            accT.x += posij.x*(w + w2)/2.0f;
-            accT.y += posij.y*(w + w2)/2.0f; 
+            accT.x += l*posij.x*(w + w2)/2.0f;
+            accT.y += l*posij.y*(w + w2)/2.0f; 
         }
     }
 
@@ -875,6 +941,7 @@ __device__ void initSubParticlesAndAddToList
 (
     float* const dParticlePositionsHigh,
     float* const dParticleVelocitiesHigh,
+    unsigned char* const dStatesHigh,
     int* const dParticleIDsHigh,
     int* const dGLIndicesHigh,
     int numParticlesHigh,                   // current # of high particles             
@@ -886,16 +953,20 @@ __device__ void initSubParticlesAndAddToList
     // add high res particles to the list & and mark as transient
     unsigned int idH = 4*id + 0;
     dGLIndicesHigh[numParticlesHigh + 0] = idH;
-    dParticleIDsHigh[numParticlesHigh + 0] = (idH | 0x80000000);
+    dParticleIDsHigh[numParticlesHigh + 0] = idH;
+    dStatesHigh[idH] = 0x0001;
     idH = 4*id + 1;
     dGLIndicesHigh[numParticlesHigh + 1] = idH;
-    dParticleIDsHigh[numParticlesHigh + 1] = (idH | 0x80000000);
+    dParticleIDsHigh[numParticlesHigh + 1] = idH ;
+    dStatesHigh[idH] = 0x0001;
     idH = 4*id + 2;
     dGLIndicesHigh[numParticlesHigh + 2] = idH;
-    dParticleIDsHigh[numParticlesHigh + 2] = (idH | 0x80000000);
+    dParticleIDsHigh[numParticlesHigh + 2] = idH;
+    dStatesHigh[idH] = 0x0001;
     idH = 4*id + 3;
     dGLIndicesHigh[numParticlesHigh + 3] = idH;
-    dParticleIDsHigh[numParticlesHigh + 3] = (idH | 0x80000000);
+    dParticleIDsHigh[numParticlesHigh + 3] = idH;
+    dStatesHigh[idH] = 0x0001;
 
     #define DIR_LEN 0.35355339f
     float h = gdEffectiveRadius;
@@ -958,7 +1029,7 @@ __global__ void adjustTransientHighD
     }
 
     // get id of the particle
-    unsigned int id = dTransientIDsLow[idx] & 0x7FFFFFFF;    
+    unsigned int id = dTransientIDsLow[idx];    
 
     // get pos and vel
     float2 pos;
@@ -1112,10 +1183,12 @@ __global__ void computeParticleDensityPressure
     const int* const dCellStartIndices,
     const int* const dCellEndIndices, 
     const float* const dParticlePositions,
+    const unsigned char* const dStates,
     const int* const dParticleIDsHigh, 
     const int* const dCellStartIndicesHigh,
     const int* const dCellEndIndicesHigh, 
     const float* const dParticlePositionsHigh,
+    const unsigned char* const dStatesHigh,
     unsigned int numParticles
 )
 {
@@ -1128,8 +1201,7 @@ __global__ void computeParticleDensityPressure
 
     // get id and state of the particle
     unsigned int id = dParticleIDs[idx];    
-    unsigned int state = id >> 31;
-    id = id & 0x7FFFFFFF;
+    unsigned char state = dStates[id];
 
     float2 pos;
     pos.x = dParticlePositions[2*id + 0];
@@ -1168,7 +1240,8 @@ __global__ void computeParticleDensityPressure
             (
                 densityH, 
                 pos, 
-                dParticlePositionsHigh, 
+                dParticlePositionsHigh,
+                dStatesHigh, 
                 dParticleIDsHigh, 
                 start, 
                 end,
@@ -1194,10 +1267,12 @@ __global__ void computeParticleDensityPressureHigh
     const int* const dCellStartIndices,
     const int* const dCellEndIndices, 
     const float* const dParticlePositions,
+    const unsigned char* const dStates,
     const int* const dParticleIDsLow, 
     const int* const dCellStartIndicesLow,
     const int* const dCellEndIndicesLow, 
     const float* const dParticlePositionsLow,
+    const unsigned char* const dStatesLow,
     unsigned int numParticles
 )
 {
@@ -1208,7 +1283,8 @@ __global__ void computeParticleDensityPressureHigh
         return;
     }
 
-    unsigned int id = dParticleIDs[idx]  & 0x7FFFFFFF;    
+    unsigned int id = dParticleIDs[idx]; 
+    unsigned char state = dStates[id];  
     
     float2 pos;
     pos.x = dParticlePositions[2*id + 0];
@@ -1230,9 +1306,11 @@ __global__ void computeParticleDensityPressureHigh
                 density, 
                 pos, 
                 dParticlePositions, 
+                dStates,
                 dParticleIDs, 
                 start, 
-                end
+                end,
+                state
             );
         }
     }
@@ -1249,14 +1327,16 @@ __global__ void computeParticleDensityPressureHigh
             int hash = computeHash(i, j);
             int start = dCellStartIndicesLow[hash];
             int end = dCellEndIndicesLow[hash];
-            updateDensityCellHigh
+            updateDensityCellComplementHigh
             (
-                densityL, 
+                density, 
                 pos, 
-                dParticlePositionsLow, 
-                dParticleIDsLow, 
+                dParticlePositions, 
+                dStates,
+                dParticleIDs, 
                 start, 
-                end
+                end,
+                state
             );
         }
     }
@@ -1287,80 +1367,82 @@ __global__ void computeParticleDensityPressureHighRelax
     unsigned int numParticles
 )
 {
-    unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
+    //unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if (idx >= numParticles)
-    {
-        return;
-    }
+    //if (idx >= numParticles)
+    //{
+    //    return;
+    //}
 
-    unsigned int id = dTransientIDs[idx];    
-    
-    float2 pos;
-    pos.x = dParticlePositions[2*id + 0];
-    pos.y = dParticlePositions[2*id + 1];
+    //unsigned int id = dTransientIDs[idx];    
+    //
+    //float2 pos;
+    //pos.x = dParticlePositions[2*id + 0];
+    //pos.y = dParticlePositions[2*id + 1];
 
-    int2 cs = computeGridCoordinateHigh(pos, -gdEffectiveRadiusHigh);
-    int2 ce = computeGridCoordinateHigh(pos, gdEffectiveRadiusHigh);
-    float density = 0.0f;
+    //int2 cs = computeGridCoordinateHigh(pos, -gdEffectiveRadiusHigh);
+    //int2 ce = computeGridCoordinateHigh(pos, gdEffectiveRadiusHigh);
+    //float density = 0.0f;
 
-    for (int j = cs.y; j <= ce.y; j++)
-    {
-        for (int i = cs.x; i <= ce.x; i++)
-        {
-            int hash = computeHashHigh(i, j);
-            int start = dCellStartIndices[hash];
-            int end = dCellEndIndices[hash];
-            updateDensityCellHigh
-            (
-                density, 
-                pos, 
-                dParticlePositions, 
-                dParticleIDs, 
-                start, 
-                end
-            );
-        }
-    }
+    //for (int j = cs.y; j <= ce.y; j++)
+    //{
+    //    for (int i = cs.x; i <= ce.x; i++)
+    //    {
+    //        int hash = computeHashHigh(i, j);
+    //        int start = dCellStartIndices[hash];
+    //        int end = dCellEndIndices[hash];
+    //        updateDensityCellHigh
+    //        (
+    //            density, 
+    //            pos, 
+    //            dParticlePositions, 
+    //            dParticleIDs, 
+    //            start, 
+    //            end
+    //        );
+    //    }
+    //}
 
 
-    cs = computeGridCoordinate(pos, -gdEffectiveRadiusHigh);
-    ce = computeGridCoordinate(pos, gdEffectiveRadiusHigh);
-    float densityL = 0.0f;
+    //cs = computeGridCoordinate(pos, -gdEffectiveRadiusHigh);
+    //ce = computeGridCoordinate(pos, gdEffectiveRadiusHigh);
+    //float densityL = 0.0f;
 
-    for (int j = cs.y; j <= ce.y; j++)
-    {
-        for (int i = cs.x; i <= ce.x; i++)
-        {
-            int hash = computeHash(i, j);
-            int start = dCellStartIndicesLow[hash];
-            int end = dCellEndIndicesLow[hash];
-            updateDensityCellHigh
-            (
-                densityL, 
-                pos, 
-                dParticlePositionsLow, 
-                dParticleIDsLow, 
-                start, 
-                end
-            );
-        }
-    }
+    //for (int j = cs.y; j <= ce.y; j++)
+    //{
+    //    for (int i = cs.x; i <= ce.x; i++)
+    //    {
+    //        int hash = computeHash(i, j);
+    //        int start = dCellStartIndicesLow[hash];
+    //        int end = dCellEndIndicesLow[hash];
+    //        updateDensityCellHigh
+    //        (
+    //            densityL, 
+    //            pos, 
+    //            dParticlePositionsLow, 
+    //            dParticleIDsLow, 
+    //            start, 
+    //            end
+    //        );
+    //    }
+    //}
 
-    density *= gdFluidParticleMassHigh;
-    densityL *= gdFluidParticleMass;
-    density += densityL;
+    //density *= gdFluidParticleMassHigh;
+    //densityL *= gdFluidParticleMass;
+    //density += densityL;
 
-    dParticleDensities[id] = density;
-    float a = density/gdRestDensity;
-    float a3 = a*a*a;
-    dParticlePressures[id] = gdTaitCoefficient*(a3*a3*a - 1.0f);
+    //dParticleDensities[id] = density;
+    //float a = density/gdRestDensity;
+    //float a3 = a*a*a;
+    //dParticlePressures[id] = gdTaitCoefficient*(a3*a3*a - 1.0f);
 }
 //-----------------------------------------------------------------------------
 __global__ void computeParticleAccelerationAndAdvance 
 (
     float* const dParticlePositions, 
     float* const dParticleVelocities,
+    unsigned char* const dStates,
+    unsigned char* const dStatesHigh,
     int* const dParticleIDsNew,
     int* const dParticleIDsHighNew,
     int* const dGLIndices,
@@ -1393,9 +1475,8 @@ __global__ void computeParticleAccelerationAndAdvance
     }
 
     // get id and state of the particle
-    unsigned int idA = dParticleIDs[idx];    
-    unsigned int state = idA >> 31;
-    unsigned int id = idA & 0x7FFFFFFF;
+    unsigned int id = dParticleIDs[idx];    
+    unsigned char state = dStates[id];
 
     float2 pos;
     pos.x = dParticlePositions[2*id + 0];
@@ -1434,9 +1515,26 @@ __global__ void computeParticleAccelerationAndAdvance
             int end = dCellEndIndices[hash];
             int startB = tex1Dfetch(gdBoundaryCellStartIndicesTex, hash);
             int endB = tex1Dfetch(gdBoundaryCellEndIndicesTex, hash);
-            updateAccCell(acc, accT, accB, pos, vel, density, pressure, 
-                dParticlePositions, dParticleDensities, dParticlePressures, 
-                dParticleVelocities, dParticleIDs, start, end, startB, endB);
+            updateAccCell
+            (
+                acc, 
+                accT, 
+                accB, 
+                pos, 
+                vel, 
+                density, 
+                pressure, 
+                dParticlePositions, 
+                dParticleDensities, 
+                dParticlePressures, 
+                dParticleVelocities, 
+                dStates,
+                dParticleIDs,
+                start, 
+                end, 
+                startB, 
+                endB
+            );
         }
     }
 
@@ -1450,10 +1548,25 @@ __global__ void computeParticleAccelerationAndAdvance
             int hash = computeHashHigh(i, j);
             int start = dCellStartIndicesHigh[hash];
             int end = dCellEndIndicesHigh[hash];
-            updateAccCellComplement(accH, accT, accB, pos, vel, density, 
-                pressure, dParticlePositionsHigh, dParticleDensitiesHigh, 
-                dParticlePressuresHigh, dParticleVelocitiesHigh, 
-                dParticleIDsHigh, start, end, state);
+            updateAccCellComplement
+            (
+                accH, 
+                accT, 
+                accB, 
+                pos, 
+                vel, 
+                density, 
+                pressure, 
+                dParticlePositionsHigh, 
+                dParticleDensitiesHigh, 
+                dParticlePressuresHigh, 
+                dParticleVelocitiesHigh, 
+                dStatesHigh,
+                dParticleIDsHigh, 
+                start, 
+                end, 
+                state
+            );
         }
     }
 
@@ -1487,23 +1600,25 @@ __global__ void computeParticleAccelerationAndAdvance
     dParticlePositions[2*id + 1] = pos.y;
     
     // if particle is not transient and split condition is true ...
-    if (pos.x > 0.6f && state == 0)
+    if (pos.x > 0.6f && state == 0x0000)
     {
         // add particle to id list (Low) and mark as transient
         int index = atomicAdd(dParticleCount, 1);
-        dParticleIDsNew[index] = id | 0x80000000;
+        dParticleIDsNew[index] = id;
+        dStates[id] = 0x0001;
         dGLIndices[index] = id;
         
         // add particle id to transient list (low)
         int numTransient = atomicAdd(dTransientParticleCountLow, 1);
-        dTransientIDsLow[numTransient] = id | 0x80000000;
+        dTransientIDsLow[numTransient] = id;
 
         // create highres particles and add to id list (high)
         int numParticlesHigh = atomicAdd(dParticleCountHigh, 4);
         initSubParticlesAndAddToList
         (
             dParticlePositionsHigh,
-            dParticleVelocitiesHigh,             
+            dParticleVelocitiesHigh,  
+            dStatesHigh,           
             dParticleIDsHighNew,
             dGLIndicesHigh, 
             numParticlesHigh, 
@@ -1516,7 +1631,7 @@ __global__ void computeParticleAccelerationAndAdvance
     {
         // add particle to id list (Low)
         int index = atomicAdd(dParticleCount, 1);
-        dParticleIDsNew[index] = idA;
+        dParticleIDsNew[index] = id;
         dGLIndices[index] = id;
     }
 }
@@ -1530,10 +1645,12 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
     int* const dParticleCount,
     const float* const dParticleDensities, 
     const float* const dParticlePressures, 
-    const  float* const dParticlePositionsLow, 
-    const  float* const dParticleVelocitiesLow,
+    const unsigned char* const dStates,
+    const float* const dParticlePositionsLow, 
+    const float* const dParticleVelocitiesLow,
     const float* const dParticleDensitiesLow, 
     const float* const dParticlePressuresLow,
+    const unsigned char* const dStatesLow,
     const int* const dParticleIDs, 
     const int* const dCellStartIndices,
     const int* const dCellEndIndices, 
@@ -1551,8 +1668,8 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
         return;
     }
 
-    unsigned int idA = dParticleIDs[idx];    
-    unsigned int id = idA & 0x7FFFFFFF;
+    unsigned int id = dParticleIDs[idx];  
+    unsigned char state = dStates[id];  
 
     float2 pos;
     pos.x = dParticlePositions[2*id + 0];
@@ -1591,9 +1708,24 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
             int end = dCellEndIndices[hash];
             int startB = tex1Dfetch(gdBoundaryCellStartIndicesTex, hash);
             int endB = tex1Dfetch(gdBoundaryCellEndIndicesTex, hash);
-            updateAccCellHigh(acc, accT, pos, vel, density, pressure, 
-                dParticlePositions, dParticleDensities, dParticlePressures, 
-                dParticleVelocities, dParticleIDs, start, end);
+            updateAccCellHigh
+            (
+                acc, 
+                accT, 
+                pos, 
+                vel, 
+                density, 
+                pressure, 
+                dParticlePositions, 
+                dParticleDensities, 
+                dParticlePressures, 
+                dParticleVelocities, 
+                dStates,
+                dParticleIDs, 
+                start, 
+                end,
+                state
+            );
         }
     }
 
@@ -1611,10 +1743,24 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
             int endB = tex1Dfetch(gdBoundaryCellEndIndicesTex, hash);
             updateAccCellComplementHigh
             (
-                accL, accT, accB, pos, vel, density, pressure, 
-                dParticlePositionsLow, dParticleDensitiesLow, 
-                dParticlePressuresLow, dParticleVelocitiesLow, dParticleIDsLow, 
-                start, end, startB, endB
+                accL, 
+                accT, 
+                accB, 
+                pos, 
+                vel, 
+                density, 
+                pressure, 
+                dParticlePositionsLow, 
+                dParticleDensitiesLow, 
+                dParticlePressuresLow, 
+                dParticleVelocitiesLow, 
+                dStatesLow,
+                dParticleIDsLow, 
+                start,
+                end, 
+                startB, 
+                endB,
+                state
             );
         }
     }
@@ -1650,7 +1796,7 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
 
 
     int index = atomicAdd(dParticleCount, 1);
-    dParticleIDsNew[index] = idA;
+    dParticleIDsNew[index] = id;
     dGLIndices[index] = id;
 }
 //-----------------------------------------------------------------------------
@@ -2094,6 +2240,7 @@ WCSPHSolver::WCSPHSolver
     ) );
 
 
+
     // allocate memory for transient particle (Low)
     CUDA_SAFE_CALL( cudaMalloc(&mdTransientParticleCountLow, sizeof(int)) );
     CUDA_SAFE_CALL( cudaMemset(mdTransientParticleCountLow, 0, sizeof(int)) );
@@ -2101,6 +2248,33 @@ WCSPHSolver::WCSPHSolver
     (
         &mdTransientIDsLow, 
         sizeof(int)*mFluidParticles->mMaxParticles
+    ) );
+
+    // alloc and init particle states (high)
+    CUDA_SAFE_CALL( cudaMalloc
+    (
+        &mdStatesHigh,
+        sizeof(unsigned char)*mFluidParticlesHigh->mMaxParticles
+    ) );
+    CUDA_SAFE_CALL( cudaMemset
+    (
+        mdStatesHigh,
+        0,
+        sizeof(unsigned char)*mFluidParticlesHigh->mMaxParticles
+    ) );
+
+
+    // alloc and init particle states (low)
+    CUDA_SAFE_CALL( cudaMalloc
+    (
+        &mdStates,
+        sizeof(unsigned char)*mFluidParticles->mMaxParticles
+    ) );
+    CUDA_SAFE_CALL( cudaMemset
+    (
+        mdStates,
+        0,
+        sizeof(unsigned char)*mFluidParticles->mMaxParticles
     ) );
 
 }
@@ -2115,6 +2289,8 @@ WCSPHSolver::~WCSPHSolver ()
     CUDA::SafeFree<int>(&mdTransientParticleCountHigh);
     CUDA::SafeFree<int>(&mdTransientIDsLow);
     CUDA::SafeFree<int>(&mdTransientParticleCountLow);
+    CUDA::SafeFree<unsigned char>(&mdStates);
+    CUDA::SafeFree<unsigned char>(&mdStatesHigh);
 }
 //-----------------------------------------------------------------------------
 void WCSPHSolver::Bind () const
@@ -2347,7 +2523,7 @@ void WCSPHSolver::AdvanceTS ()
         cudaMemcpyDeviceToHost
     ) );  
 
-    this->adjustTransientHigh(activeID);
+    //this->adjustTransientHigh(activeID);
     
     mFluidParticles->Unmap();
     mFluidParticlesHigh->Unmap();
@@ -2416,10 +2592,12 @@ void WCSPHSolver::computePressureDensity(unsigned int activeID)
         mFluidParticleGrid.dCellStart, 
         mFluidParticleGrid.dCellEnd, 
         mFluidParticles->Positions(), 
+        mdStates,
         mFluidParticleGridHigh.dParticleIDs[activeID], 
         mFluidParticleGridHigh.dCellStart, 
         mFluidParticleGridHigh.dCellEnd, 
         mFluidParticlesHigh->Positions(),         
+        mdStatesHigh,
         mFluidParticles->mNumParticles
     );
 }
@@ -2427,7 +2605,6 @@ void WCSPHSolver::computePressureDensity(unsigned int activeID)
 void WCSPHSolver::updateNeighborGridHigh (unsigned char activeID)
 {
     CUDA::Timer timer;
-
 
     // set all grid cells to be empty
     unsigned int size = mDomainDimensionsHigh[0]*mDomainDimensionsHigh[1]*
@@ -2490,6 +2667,8 @@ void WCSPHSolver::updatePositions (unsigned char activeID)
     (
         mFluidParticles->Positions(), 
         mFluidParticles->Velocities(), 
+        mdStates,
+        mdStatesHigh,
         mFluidParticleGrid.dParticleIDs[(activeID + 1) % 2], 
         mFluidParticleGridHigh.dParticleIDs[(activeID + 1) % 2],
         mFluidParticles->mdParticleIDs,
@@ -2538,10 +2717,12 @@ void WCSPHSolver::updatePositionsHigh (unsigned char activeID)
         mdParticleCountHigh,
         mFluidParticlesHigh->Densities(),
         mFluidParticlesHigh->Pressures(),
+        mdStatesHigh,
         mFluidParticles->mdPositions,
         mFluidParticles->mdVelocities,
         mFluidParticles->mdDensities,
         mFluidParticles->mdPressures,
+        mdStates,
         mFluidParticleGridHigh.dParticleIDs[activeID], 
         mFluidParticleGridHigh.dCellStart, 
         mFluidParticleGridHigh.dCellEnd, 
@@ -2568,10 +2749,12 @@ void WCSPHSolver::computePressureDensityHigh(unsigned int activeID)
         mFluidParticleGridHigh.dCellStart, 
         mFluidParticleGridHigh.dCellEnd, 
         mFluidParticlesHigh->Positions(), 
+        mdStatesHigh,
         mFluidParticleGrid.dParticleIDs[activeID], 
         mFluidParticleGrid.dCellStart, 
         mFluidParticleGrid.dCellEnd, 
         mFluidParticles->Positions(), 
+        mdStates,
         mFluidParticlesHigh->mNumParticles
     );
 }
