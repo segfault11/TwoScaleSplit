@@ -48,6 +48,7 @@ class WCSPHSolver
         int* dParticleHashs;    
         int* dCellStart;
         int* dCellEnd;
+        int* dParticleIDs[2];
     };
 
 public: 
@@ -87,11 +88,12 @@ private:
     float mTimeStep;
 
     dim3 mBlockDim;
+    int mActive;
 
     dim3 mGridDim;
     int* mdParticleCount;
     ParticleSystem* mFluidParticles;
-    NeighborGrid mFluidParticleGrid;
+    NeighborGrid mFluidParticleGrid; 
     
     dim3 mGridDimHigh;
     int* mdParticleCountHigh;

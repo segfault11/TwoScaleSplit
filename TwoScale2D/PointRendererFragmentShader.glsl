@@ -31,5 +31,5 @@ void main()
         discard;
     }
 
-    fragOutput = color;
+    fragOutput = vec4(color.r, color.g, color.b, 0.5f);
 }

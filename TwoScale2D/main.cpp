@@ -61,20 +61,35 @@ int main (int argc, char* argv[])
 void display () 
 {
     static int i = 0;
-
+    try
+    {
     gSolver->AdvanceTS();
     //gSolver->AdvanceHigh(); 
     
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     gFluidRenderer->Render();
+    
+    glEnable(GL_BLEND);
     gFluidRendererHigh->Render();
+    glDisable(GL_BLEND);
+    
     gBoundaryRenderer->Render();
 
     glFlush();
     glutSwapBuffers();
     glutPostRedisplay();
+
+    }
+    catch (const std::runtime_error& e)
+    {
+        std::cout << e.what() << std::endl;
+        std::system("pause");
+    }
+
+
+
 
     if (i % 5 == 0)
     {
@@ -99,6 +114,13 @@ void keyboard (unsigned char key, int x, int y)
 
 void init ()
 {
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
+    glBlendColor(0.75f, 0.75f, 0.75f, 0.5f);
+
     // Dam break simulation with about 15000 fluid particles
     try
     {
@@ -138,17 +160,17 @@ void init ()
         gFluidRenderer = new PointRenderer
         (
             *gFluidParticles, 0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 0.5f, 1.0f, 1.0f
+            1.0f, 0.0f, 0.5f, 1.0f, 0.7f
         );
         gFluidRendererHigh = new PointRenderer
         (
             *gFluidParticlesHigh, 0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.5f, 0.0f, 1.0f        
+            1.0f, 1.0f, 0.5f, 0.0f, 0.6f        
         );
         gBoundaryRenderer = new PointRenderer
         (
             *gBoundaryParticles, 0.0f, 0.0f, 
-            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f
+            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f
         );
         WCSPHConfig config
         (   

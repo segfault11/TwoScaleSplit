@@ -18,8 +18,8 @@ PointRenderer::PointRenderer (const ParticleSystem& particleSystem, float xs,
     mProgram = glCreateProgram();
     GL::AttachShader(mProgram, "PointRendererVertexShader.glsl", 
         GL_VERTEX_SHADER);
-    //GL::AttachShader(mProgram, "PointRendererGeometryShader.glsl", 
-    //    GL_GEOMETRY_SHADER);
+    GL::AttachShader(mProgram, "PointRendererGeometryShader.glsl", 
+        GL_GEOMETRY_SHADER);
     GL::AttachShader(mProgram, "PointRendererFragmentShader.glsl", 
         GL_FRAGMENT_SHADER);
     GL::BindAttribLocation(mProgram, "position", 0);

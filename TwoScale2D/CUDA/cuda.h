@@ -13,12 +13,26 @@
 #include <stdexcept>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 
 #define CUDA_SAFE_CALL(x) CUDA::SafeCall(x, __FILE__, __LINE__);
 
 namespace CUDA
 {
+
+inline void CheckLastError (const std::string& message)
+{
+    cudaDeviceSynchronize(); 
+    cudaError_t err = cudaGetLastError();
+    
+    if (cudaSuccess != err)
+    {
+        std::cout << "message is " << message << std::endl;
+        std::cout << "error is " << cudaGetErrorString(err) << std::endl;
+        std::system("pause");
+    }
+}
 
 inline void SafeCall (cudaError_t err, const char* filename, unsigned int line)
 {

@@ -55,8 +55,8 @@ private:
     
     // cuda/gl interop member
     GLuint mPositionsVBO;
-    GLuint mParticleIDsVBO[2];
-    cudaGraphicsResource_t mGraphicsResources[3];
+    GLuint mParticleIDsVBO;
+    cudaGraphicsResource_t mGraphicsResources[2];
     bool mIsMapped;
     
     // cuda device ptr
@@ -66,8 +66,7 @@ private:
     float* mdPressures;
 
     int mActive;
-    int* mdParticleIDs[2];   //!< flip flop array for 
-                             //!< storing active particleIDS
+    int* mdParticleIDs; 
 
     float mMass;    
 };

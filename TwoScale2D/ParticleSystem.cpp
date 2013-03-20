@@ -30,15 +30,11 @@ mActive(0)
     // init index buffer
     int* indexData = new int[maxParticles];
     for (int i = 0; i < maxParticles; i++) indexData[i] = i;
-    GL::CreateBufferObject(mParticleIDsVBO[0], GL_ELEMENT_ARRAY_BUFFER, sizei, 
+    GL::CreateBufferObject(mParticleIDsVBO, GL_ELEMENT_ARRAY_BUFFER, sizei, 
         indexData, GL_DYNAMIC_COPY);
     CUDA_SAFE_CALL( cudaGraphicsGLRegisterBuffer(&mGraphicsResources[1], 
-        mParticleIDsVBO[0], cudaGraphicsMapFlagsNone) );
-    GL::CreateBufferObject(mParticleIDsVBO[1], GL_ELEMENT_ARRAY_BUFFER, sizei, 
-        indexData, GL_DYNAMIC_COPY);
-    CUDA_SAFE_CALL( cudaGraphicsGLRegisterBuffer(&mGraphicsResources[2], 
-        mParticleIDsVBO[1], cudaGraphicsMapFlagsNone) );
-    delete[] indexData;
+        mParticleIDsVBO, cudaGraphicsMapFlagsNone) );
+    delete[] indexData; 
 
 
     // allocate device memory
@@ -71,23 +67,20 @@ void ParticleSystem::PushParticle (float position[2])
 //-----------------------------------------------------------------------------
 void ParticleSystem::Map ()
 {
-    CUDA_SAFE_CALL (cudaGraphicsMapResources(3, mGraphicsResources) );
+    CUDA_SAFE_CALL (cudaGraphicsMapResources(2, mGraphicsResources) );
     size_t nBytes;
     CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
         (reinterpret_cast<void**>(&mdPositions), &nBytes,
         mGraphicsResources[0]));
     CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
-        (reinterpret_cast<void**>(&mdParticleIDs[0]), &nBytes,
+        (reinterpret_cast<void**>(&mdParticleIDs), &nBytes,
         mGraphicsResources[1]));
-    CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
-        (reinterpret_cast<void**>(&mdParticleIDs[1]), &nBytes,
-        mGraphicsResources[2]));
     mIsMapped = true;
 }
 //-----------------------------------------------------------------------------
 void ParticleSystem::Unmap ()
 {
-    cudaGraphicsUnmapResources(3, mGraphicsResources);
+    cudaGraphicsUnmapResources(2, mGraphicsResources);
     mIsMapped = false;
 }
 //-----------------------------------------------------------------------------
