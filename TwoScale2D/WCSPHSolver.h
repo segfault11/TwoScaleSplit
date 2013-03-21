@@ -112,7 +112,7 @@ private:
     dim3 mGridDimTransientLow;
     int mTransientParticleCountLow;
     int* mdTransientParticleCountLow;
-    int* mdTransientIDsLow;
+    int* mdTransientIDsLow[2];
 
     
     mutable bool mIsBoundaryInit;

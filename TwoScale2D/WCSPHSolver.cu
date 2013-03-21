@@ -1599,15 +1599,20 @@ __global__ void computeParticleAccelerationAndAdvance
     dParticlePositions[2*id + 0] = pos.x;
     dParticlePositions[2*id + 1] = pos.y;
     
+
+
+
+    // add particle to id list (Low)
+    int index = atomicAdd(dParticleCount, 1);
+    dParticleIDsNew[index] = id;
+    dGLIndices[index] = id;
+
     // if particle is not transient and split condition is true ...
     if (pos.x > 0.6f && state == 0x0000)
-    {
-        // add particle to id list (Low) and mark as transient
-        int index = atomicAdd(dParticleCount, 1);
-        dParticleIDsNew[index] = id;
+    {        
+        // mark as transient
         dStates[id] = 0x0001;
-        dGLIndices[index] = id;
-        
+
         // add particle id to transient list (low)
         int numTransient = atomicAdd(dTransientParticleCountLow, 1);
         dTransientIDsLow[numTransient] = id;
@@ -1627,12 +1632,12 @@ __global__ void computeParticleAccelerationAndAdvance
             vel
         );
     }
-    else
-    {
-        // add particle to id list (Low)
-        int index = atomicAdd(dParticleCount, 1);
-        dParticleIDsNew[index] = id;
-        dGLIndices[index] = id;
+    
+    if (state == 0x0001)
+    {        
+        // add particle id to transient list (low)
+        int numTransient = atomicAdd(dTransientParticleCountLow, 1);
+        dTransientIDsLow[numTransient] = id;
     }
 }
 //-----------------------------------------------------------------------------
@@ -2246,9 +2251,15 @@ WCSPHSolver::WCSPHSolver
     CUDA_SAFE_CALL( cudaMemset(mdTransientParticleCountLow, 0, sizeof(int)) );
     CUDA_SAFE_CALL( cudaMalloc
     (
-        &mdTransientIDsLow, 
+        &mdTransientIDsLow[0], 
         sizeof(int)*mFluidParticles->mMaxParticles
     ) );
+    CUDA_SAFE_CALL( cudaMalloc
+    (
+        &mdTransientIDsLow[1], 
+        sizeof(int)*mFluidParticles->mMaxParticles
+    ) );
+
 
     // alloc and init particle states (high)
     CUDA_SAFE_CALL( cudaMalloc
@@ -2287,7 +2298,8 @@ WCSPHSolver::~WCSPHSolver ()
     CUDA::SafeFree<int>(&mdBoundaryCellEndIndices);
     CUDA::SafeFree<int>(&mdTransientIDsHigh);
     CUDA::SafeFree<int>(&mdTransientParticleCountHigh);
-    CUDA::SafeFree<int>(&mdTransientIDsLow);
+    CUDA::SafeFree<int>(&mdTransientIDsLow[0]);
+    CUDA::SafeFree<int>(&mdTransientIDsLow[1]);
     CUDA::SafeFree<int>(&mdTransientParticleCountLow);
     CUDA::SafeFree<unsigned char>(&mdStates);
     CUDA::SafeFree<unsigned char>(&mdStatesHigh);
@@ -2496,6 +2508,9 @@ void WCSPHSolver::AdvanceTS ()
     CUDA::CheckLastError("2");
     //this->relaxTransient(activeID);
     this->computePressureDensityHigh(activeID);
+
+    this->injectTransientHigh(activeID);
+
     CUDA::CheckLastError("3");
     this->computePressureDensity(activeID);
     CUDA::CheckLastError("4");
@@ -2523,14 +2538,16 @@ void WCSPHSolver::AdvanceTS ()
         cudaMemcpyDeviceToHost
     ) );  
 
-    //this->adjustTransientHigh(activeID);
+
+    activeID = (activeID + 1) % 2; 
+    mActive = activeID;
+
+
+    this->adjustTransientHigh(activeID);
     
     mFluidParticles->Unmap();
     mFluidParticlesHigh->Unmap();
     mBoundaryParticles->Unmap();
-
-    activeID = (activeID + 1) % 2; 
-    mActive = activeID;
 }
 //-----------------------------------------------------------------------------
 //  - private methods
@@ -2673,7 +2690,7 @@ void WCSPHSolver::updatePositions (unsigned char activeID)
         mFluidParticleGridHigh.dParticleIDs[(activeID + 1) % 2],
         mFluidParticles->mdParticleIDs,
         mFluidParticlesHigh->mdParticleIDs,
-        mdTransientIDsLow, 
+        mdTransientIDsLow[(activeID + 1) % 2], 
         mdParticleCount,
         mdParticleCountHigh,
         mdTransientParticleCountLow, 
@@ -2857,10 +2874,15 @@ void WCSPHSolver::adjustTransientHigh(unsigned char activeID)
         mFluidParticlesHigh->mdVelocities,
         mFluidParticles->mdPositions,
         mFluidParticles->mdVelocities,
-        mdTransientIDsLow,
+        mdTransientIDsLow[activeID],
         mTransientParticleCountLow
     );
 
+}
+//-----------------------------------------------------------------------------
+void WCSPHSolver::injectTransientHigh(unsigned char activeID)
+{
+    CUDA_SAFE_CALL(cudaMemset(mdTransientParticleCountLow, 0, sizeof(int)));
 }
 //-----------------------------------------------------------------------------
 void WCSPHSolver::initBoundaries () const
