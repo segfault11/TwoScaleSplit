@@ -12,7 +12,8 @@
 // Public member definitions
 //-----------------------------------------------------------------------------
 PointRenderer::PointRenderer (const ParticleSystem& particleSystem, float xs, 
-    float ys, float xe, float ye, float r, float g, float b, float a)
+    float ys, float xe, float ye, float r, float g, float b, float a, 
+    float pointSize)
 : mParticleSystem(&particleSystem)
 {
     mProgram = glCreateProgram();
@@ -48,6 +49,8 @@ PointRenderer::PointRenderer (const ParticleSystem& particleSystem, float xs,
     glUniform1f(loc, height);
     loc = glGetUniformLocation(mProgram, "color");
     glUniform4f(loc, r, g, b, a);
+    loc = glGetUniformLocation(mProgram, "pointSize");
+    glUniform1f(loc, pointSize);
 
     glGenVertexArrays(1, &mVAO);
     glBindVertexArray(mVAO);

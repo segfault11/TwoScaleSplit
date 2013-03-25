@@ -29,7 +29,9 @@ public:
     inline float* Velocities ();
     inline float* Densities ();
     inline float* Pressures ();
+    inline float* VisualQuantities ();
     inline int* ParticleIDs ();
+
 
     inline float GetMass () const;
     inline unsigned int GetNumParticles () const;
@@ -38,6 +40,7 @@ public:
 
     inline GLuint GetIndexVBO() const;
     inline GLuint GetPositionsVBO () const;
+    inline GLuint GetVisualQuantitiesVBO () const;
     
     void PushParticle (float position[2]);
 
@@ -56,7 +59,8 @@ private:
     // cuda/gl interop member
     GLuint mPositionsVBO;
     GLuint mParticleIDsVBO;
-    cudaGraphicsResource_t mGraphicsResources[2];
+    GLuint mVisualQuantitiesVBO;
+    cudaGraphicsResource_t mGraphicsResources[3];
     bool mIsMapped;
     
     // cuda device ptr
@@ -65,6 +69,7 @@ private:
     float* mdAccelerations;
     float* mdDensities;
     float* mdPressures;
+    float* mdVisualQuantities; 
 
     int mActive;
     int* mdParticleIDs; 

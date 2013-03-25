@@ -19,13 +19,16 @@
     <Filter Include="CUDA">
       <UniqueIdentifier>{8093e561-72a2-48f2-98c8-758da2e3c8b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer\PointRenderer">
+      <UniqueIdentifier>{06aae395-3ecb-4de3-936e-b177da8bb6b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderer\QuantityRenderer">
+      <UniqueIdentifier>{cfad0ac9-befc-4bc4-8b67-ca99a9a8db5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>ParticleSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="PointRenderer.cpp">
-      <Filter>Renderer</Filter>
     </ClCompile>
     <ClCompile Include="CUDA\cuda.cpp">
       <Filter>CUDA</Filter>
@@ -37,27 +40,39 @@
       <Filter>OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PointRenderer.cpp">
+      <Filter>Renderer\PointRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="QuantityRenderer.cpp">
+      <Filter>Renderer\QuantityRenderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ParticleSystem.inl">
       <Filter>ParticleSystem</Filter>
     </None>
     <None Include="PointRendererVertexShader.glsl">
-      <Filter>Renderer</Filter>
+      <Filter>Renderer\PointRenderer</Filter>
     </None>
     <None Include="PointRendererFragmentShader.glsl">
-      <Filter>Renderer</Filter>
+      <Filter>Renderer\PointRenderer</Filter>
     </None>
     <None Include="PointRendererGeometryShader.glsl">
-      <Filter>Renderer</Filter>
+      <Filter>Renderer\PointRenderer</Filter>
+    </None>
+    <None Include="QuantityRendererFragmentShader.glsl">
+      <Filter>Renderer\QuantityRenderer</Filter>
+    </None>
+    <None Include="QuantityRendererGeometryShader.glsl">
+      <Filter>Renderer\QuantityRenderer</Filter>
+    </None>
+    <None Include="QuantityRendererVertexShader.glsl">
+      <Filter>Renderer\QuantityRenderer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ParticleSystem.h">
       <Filter>ParticleSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="PointRenderer.h">
-      <Filter>Renderer</Filter>
     </ClInclude>
     <ClInclude Include="WCSPHSolver.h">
       <Filter>WCSPH</Filter>
@@ -72,6 +87,12 @@
       <Filter>OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="stdutil.h" />
+    <ClInclude Include="PointRenderer.h">
+      <Filter>Renderer\PointRenderer</Filter>
+    </ClInclude>
+    <ClInclude Include="QuantityRenderer.h">
+      <Filter>Renderer\QuantityRenderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="WCSPHSolver.cu">

@@ -34,6 +34,11 @@ float* ParticleSystem::Pressures ()
     return mdPressures;
 }
 //-----------------------------------------------------------------------------
+float* ParticleSystem::VisualQuantities ()
+{
+    return mdVisualQuantities;
+}
+//-----------------------------------------------------------------------------
 int* ParticleSystem::ParticleIDs ()
 {
     return mdParticleIDs;
@@ -62,5 +67,10 @@ GLuint ParticleSystem::GetPositionsVBO () const
 GLuint ParticleSystem::GetIndexVBO () const
 {
     return mParticleIDsVBO;
+}
+//-----------------------------------------------------------------------------
+GLuint ParticleSystem::GetVisualQuantitiesVBO () const
+{
+    return mVisualQuantitiesVBO;
 }
 //-----------------------------------------------------------------------------

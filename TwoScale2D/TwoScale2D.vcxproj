@@ -16,6 +16,7 @@
     <ClCompile Include="OpenGL\OpenGL.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PointRenderer.cpp" />
+    <ClCompile Include="QuantityRenderer.cpp" />
     <ClCompile Include="VideoWriter\VideoWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -23,6 +24,7 @@
     <ClInclude Include="OpenGL\OpenGL.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PointRenderer.h" />
+    <ClInclude Include="QuantityRenderer.h" />
     <ClInclude Include="stdutil.h" />
     <ClInclude Include="VideoWriter\VideoWriter.h" />
     <ClInclude Include="WCSPHSolver.h" />
@@ -32,6 +34,9 @@
     <None Include="PointRendererFragmentShader.glsl" />
     <None Include="PointRendererGeometryShader.glsl" />
     <None Include="PointRendererVertexShader.glsl" />
+    <None Include="QuantityRendererFragmentShader.glsl" />
+    <None Include="QuantityRendererGeometryShader.glsl" />
+    <None Include="QuantityRendererVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="WCSPHSolver.cu" />

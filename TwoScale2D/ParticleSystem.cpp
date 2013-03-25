@@ -36,6 +36,11 @@ mActive(0)
         mParticleIDsVBO, cudaGraphicsMapFlagsNone) );
     delete[] indexData; 
 
+    // visual quantities
+    GL::CreateBufferObject(mVisualQuantitiesVBO, GL_ARRAY_BUFFER, sizef, 0, 
+        GL_DYNAMIC_COPY);
+    CUDA_SAFE_CALL( cudaGraphicsGLRegisterBuffer(&mGraphicsResources[2], 
+        mVisualQuantitiesVBO, cudaGraphicsMapFlagsNone) );
 
     // allocate device memory
     CUDA_SAFE_CALL (cudaMalloc(&mdAccelerations, 2*sizef));
@@ -69,7 +74,7 @@ void ParticleSystem::PushParticle (float position[2])
 //-----------------------------------------------------------------------------
 void ParticleSystem::Map ()
 {
-    CUDA_SAFE_CALL (cudaGraphicsMapResources(2, mGraphicsResources) );
+    CUDA_SAFE_CALL (cudaGraphicsMapResources(3, mGraphicsResources) );
     size_t nBytes;
     CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
         (reinterpret_cast<void**>(&mdPositions), &nBytes,
@@ -77,12 +82,15 @@ void ParticleSystem::Map ()
     CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
         (reinterpret_cast<void**>(&mdParticleIDs), &nBytes,
         mGraphicsResources[1]));
+    CUDA_SAFE_CALL (cudaGraphicsResourceGetMappedPointer
+        (reinterpret_cast<void**>(&mdVisualQuantities), &nBytes,
+        mGraphicsResources[2]));
     mIsMapped = true;
 }
 //-----------------------------------------------------------------------------
 void ParticleSystem::Unmap ()
 {
-    cudaGraphicsUnmapResources(2, mGraphicsResources);
+    cudaGraphicsUnmapResources(3, mGraphicsResources);
     mIsMapped = false;
 }
 //-----------------------------------------------------------------------------
@@ -100,6 +108,7 @@ void ParticleSystem::Save (const std::string& filename) const
 void ParticleSystem::release ()
 {
     glDeleteBuffers(1, &mPositionsVBO);
+    glDeleteBuffers(1, &mVisualQuantitiesVBO);
     CUDA::SafeFree<float>(&mdAccelerations);
     CUDA::SafeFree<float>(&mdVelocities);
     CUDA::SafeFree<float>(&mdDensities);

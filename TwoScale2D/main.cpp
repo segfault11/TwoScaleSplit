@@ -157,17 +157,17 @@ void init ()
         gFluidRenderer = new PointRenderer
         (
             *gFluidParticles, 0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 0.5f, 1.0f, 0.7f
+            1.0f, 0.0f, 0.5f, 1.0f, 0.7f, 0.006f  
         );
         gFluidRendererHigh = new PointRenderer
         (
             *gFluidParticlesHigh, 0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.5f, 0.0f, 0.6f        
+            1.0f, 1.0f, 0.5f, 0.0f, 0.6f, 0.003f       
         );
         gBoundaryRenderer = new PointRenderer
         (
             *gBoundaryParticles, 0.0f, 0.0f, 
-            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f
+            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.006f  
         );
         WCSPHConfig config
         (   

@@ -17,7 +17,8 @@ class PointRenderer
 
 public:
     PointRenderer (const ParticleSystem& particleSystem, float xs, float ys,
-        float xe, float ye, float r, float g, float b, float a);
+        float xe, float ye, float r, float g, float b, float a, 
+        float pointSize);
     ~PointRenderer ();
 
     void Render () const;

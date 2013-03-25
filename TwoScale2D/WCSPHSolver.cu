@@ -485,7 +485,7 @@ __device__ inline void updateAccCell
 )
 {
     float dens2 = dens*dens;
-    float deleted[2] = {1.0f, 0.0f};
+    float deleted[3] = {1.0f, 1.0f, 0.0f};
 
     for (int i = start; i < end; i++)
     {
@@ -508,7 +508,7 @@ __device__ inline void updateAccCell
 
         if (dist != 0.0f && dist < gdEffectiveRadius)
         {
-            float l = deleted[statej >> 1];
+            float l = deleted[statej];
 
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
@@ -533,7 +533,6 @@ __device__ inline void updateAccCell
 
             acc.x += l*coeff*(gradI.x + gradJ.x)/2.0f;
             acc.y += l*coeff*(gradI.y + gradJ.y)/2.0f;
-
 
             float w = evaluateM4Kernel(dist);
             float w2 = evaluateM4KernelHigh(dist);
@@ -789,7 +788,7 @@ __device__ inline void updateAccCellComplementHigh
 )
 {
     float lambda[4] = {1.0f, 1.0f, 1.0f, 0.0f};
-    float deleted[2] = {1.0f, 0.0f};
+    float deleted[3] = {1.0f, 1.0f, 0.0f};
     
     float dens2 = dens*dens;
 
@@ -817,7 +816,7 @@ __device__ inline void updateAccCellComplementHigh
             // compute pressure contribution
             float coeff = pre/dens2 + prej/densj2;
             float l = lambda[((statei & 0x0001) << 1) | (statej & 0x0001)]*
-                deleted[statej >> 1];
+                deleted[statej];
 
             // compute artifcial velocity
             float2 velij;
@@ -1043,7 +1042,7 @@ __global__ void injectTransientHighD
 
     fluc = fluc/(4.0f*density);
 
-    if (true)
+    if (fluc < 0.02f)
     {
         // set high res particles to default
         for (unsigned int i = 0; i < 4; i++)
@@ -2675,12 +2674,12 @@ void WCSPHSolver::updateNeighborGrid (unsigned char activeID)
 
     // set all grid cells to be empty
     unsigned int size = mDomainDimensions[0]*mDomainDimensions[1]*
-        sizeof(unsigned int);
+        sizeof(int);
 
-    CUDA_SAFE_CALL ( cudaMemset(mFluidParticleGrid.dCellStart, 
-        EMPTY_CELL, size) ); 
-    CUDA_SAFE_CALL ( cudaMemset(mFluidParticleGrid.dCellEnd, 
-        EMPTY_CELL, size) ); 
+    CUDA_SAFE_CALL(cudaMemset(mFluidParticleGrid.dCellStart, 
+        EMPTY_CELL, size)); 
+    CUDA_SAFE_CALL(cudaMemset(mFluidParticleGrid.dCellEnd, 
+        EMPTY_CELL, size)); 
 
     // fill grid cells according to current particles
     int sharedMemSize = sizeof(int)*(mBlockDim.x + 1);
