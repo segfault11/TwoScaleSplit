@@ -88,9 +88,6 @@ void display ()
         std::system("pause");
     }
 
-
-
-
     if (i % 5 == 0)
     {
         gsVideoWriter.CaptureFrame();
@@ -135,7 +132,7 @@ void init ()
         float speedSound = 88.1472f;
         float alpha = 0.04f;
         float tensionCoefficient = 0.08f;
-        float timeStep = 0.0002f;
+        float timeStep = 0.00035f;
 
         gFluidParticles = CreateParticleBox
         (

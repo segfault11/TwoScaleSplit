@@ -1,4 +1,4 @@
-﻿Build started 3/21/2013 11:46:01 AM.
+﻿Build started 3/25/2013 12:06:01 PM.
      1>Project "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\TwoScale2D.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "Release\TwoScale2D.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,23 +8,31 @@
        Skipping target "AddCudaCompilePropsDeps" because all output files are up-to-date with respect to the input files.
        CudaBuild:
          Compiling CUDA source file WCSPHSolver.cu...
-         cmd.exe /C "C:\Users\Arno\AppData\Local\Temp\c103d631067144d89461cbc9b0861547.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu"
+         cmd.exe /C "C:\Users\Arno\AppData\Local\Temp\6b1e1c7501e64161af9da67a425d47a9.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu"
          
-         C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu" 
+         C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\bin\nvcc.exe" -gencode=arch=compute_30,code=\"sm_30,compute_30\" --use-local-env --cl-version 2010 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin"  -I"C:\OpenCV2.1\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.0\include"     --keep-dir "Release" -maxrregcount=0  --machine 32 --compile     -D_MBCS -Xcompiler "/EHsc /W3 /nologo /O2 /Zi  /MD  " -o "Release\WCSPHSolver.cu.obj" "C:\Users\Arno\Desktop\TwoScaleSplit\TwoScale2D\WCSPHSolver.cu" 
          WCSPHSolver.cu
-         tmpxft_00000dc8_00000000-2_WCSPHSolver.cudafe1.gpu
-         tmpxft_00000dc8_00000000-7_WCSPHSolver.cudafe2.gpu
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1307): warning : variable "a3" was declared but never referenced
+         
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1399): warning : variable "a3" was declared but never referenced
+         
+         tmpxft_000014a0_00000000-2_WCSPHSolver.cudafe1.gpu
+         tmpxft_000014a0_00000000-7_WCSPHSolver.cudafe2.gpu
          WCSPHSolver.cu
-         tmpxft_00000dc8_00000000-2_WCSPHSolver.cudafe1.cpp
-         tmpxft_00000dc8_00000000-12_WCSPHSolver.ii
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2133): warning C4018: '<' : signed/unsigned mismatch
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2330): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2331): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2345): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2347): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2559): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
-     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2640): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1307): warning : variable "a3" was declared but never referenced
+         
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(1399): warning : variable "a3" was declared but never referenced
+         
+         tmpxft_000014a0_00000000-2_WCSPHSolver.cudafe1.cpp
+         tmpxft_000014a0_00000000-12_WCSPHSolver.ii
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2221): warning C4018: '<' : signed/unsigned mismatch
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2420): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2421): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2435): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2437): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2653): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
+     1>C:/Users/Arno/Desktop/TwoScaleSplit/TwoScale2D/WCSPHSolver.cu(2791): warning C4244: '=' : conversion from 'float' to 'unsigned int', possible loss of data
        ClCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -62,4 +70,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:20.38
+Time Elapsed 00:00:20.77

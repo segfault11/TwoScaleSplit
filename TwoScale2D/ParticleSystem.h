@@ -62,6 +62,7 @@ private:
     // cuda device ptr
     float* mdPositions;
     float* mdVelocities;
+    float* mdAccelerations;
     float* mdDensities;
     float* mdPressures;
 

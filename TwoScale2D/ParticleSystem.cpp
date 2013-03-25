@@ -38,11 +38,13 @@ mActive(0)
 
 
     // allocate device memory
+    CUDA_SAFE_CALL (cudaMalloc(&mdAccelerations, 2*sizef));
     CUDA_SAFE_CALL (cudaMalloc(&mdVelocities, 2*sizef));
     CUDA_SAFE_CALL (cudaMalloc(&mdDensities, sizef));
     CUDA_SAFE_CALL (cudaMalloc(&mdPressures, sizef));
 
     // set allocated memory to zero
+    CUDA_SAFE_CALL (cudaMemset(mdAccelerations, 0, 2*sizef));    
     CUDA_SAFE_CALL (cudaMemset(mdVelocities, 0, 2*sizef));
     CUDA_SAFE_CALL (cudaMemset(mdDensities, 0, sizef));
     CUDA_SAFE_CALL (cudaMemset(mdPressures, 0, sizef));
@@ -98,7 +100,7 @@ void ParticleSystem::Save (const std::string& filename) const
 void ParticleSystem::release ()
 {
     glDeleteBuffers(1, &mPositionsVBO);
-
+    CUDA::SafeFree<float>(&mdAccelerations);
     CUDA::SafeFree<float>(&mdVelocities);
     CUDA::SafeFree<float>(&mdDensities);
     CUDA::SafeFree<float>(&mdPressures);
