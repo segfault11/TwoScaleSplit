@@ -21,6 +21,12 @@ gGeometryData;
 
 out vec4 fragOutput;
 
+//in VertexData
+//{
+//    float quantity;
+//}
+//gVertexData;
+
 
 // Returns the appropriate value from the Jet color function.
 vec3 getJetColor(float value) 
@@ -43,5 +49,7 @@ void main()
         discard;
     }
 
-    fragOutput = vec4(getJetColor(gGeometryData.quantity), 0.5f);
+    vec3 color = getJetColor(gGeometryData.quantity);
+
+    fragOutput = vec4(color, 0.5f);
 }

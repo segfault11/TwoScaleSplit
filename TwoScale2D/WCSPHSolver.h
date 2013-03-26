@@ -73,7 +73,8 @@ private:
     inline void updatePositionsHigh (unsigned char activeID);
     inline void relaxTransient (unsigned char activeID);
     inline void adjustTransientHigh (unsigned char activeID);
-    inline void injectTransientHigh(unsigned char activeID);
+    inline void injectTransientHigh (unsigned char activeID);
+    inline void setVisualQuantities (unsigned char activeID);
 
     float mDomainOrigin[2];
     float mDomainEnd[2];

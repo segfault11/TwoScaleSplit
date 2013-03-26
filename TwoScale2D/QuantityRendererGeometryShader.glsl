@@ -21,7 +21,7 @@ in VertexData
 {
     float quantity;
 }
-gVertexData;
+gVertexData[1];
 
 out GeometryData
 {
@@ -36,22 +36,22 @@ void main()
     
     gl_Position = gl_in[0].gl_Position + vec4(dx, dx, 0.0f, 0.0f);
     gGeometryData.relCoord = vec2(1.0f, 1.0f);
-    gGeometryData.quantity = gVertexData.quantity;
+    gGeometryData.quantity = gVertexData[0].quantity;
     EmitVertex();
     
     gl_Position = gl_in[0].gl_Position + vec4(-dx, dx, 0.0f, 0.0f);
     gGeometryData.relCoord = vec2(-1.0f, 1.0f);
-    gGeometryData.quantity = gVertexData.quantity;
+    gGeometryData.quantity = gVertexData[0].quantity;
     EmitVertex();
     
     gl_Position = gl_in[0].gl_Position + vec4(dx, -dx, 0.0f, 0.0f);
     gGeometryData.relCoord = vec2(1.0f, -1.0f);
-    gGeometryData.quantity = gVertexData.quantity;
+    gGeometryData.quantity = gVertexData[0].quantity;
     EmitVertex();
     
     gl_Position = gl_in[0].gl_Position + vec4(-dx, -dx, 0.0f, 0.0f);
     gGeometryData.relCoord = vec2(-1.0f, -1.0f);
-    gGeometryData.quantity = gVertexData.quantity;
+    gGeometryData.quantity = gVertexData[0].quantity;
     EmitVertex();
     
     EndPrimitive();

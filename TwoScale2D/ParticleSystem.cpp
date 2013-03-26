@@ -37,11 +37,14 @@ mActive(0)
     delete[] indexData; 
 
     // visual quantities
-    GL::CreateBufferObject(mVisualQuantitiesVBO, GL_ARRAY_BUFFER, sizef, 0, 
+    float* qData = new float[maxParticles];
+    for (unsigned int i = 0; i < maxParticles; i++) qData[i] = 0.0f;
+    GL::CreateBufferObject(mVisualQuantitiesVBO, GL_ARRAY_BUFFER, sizef, qData, 
         GL_DYNAMIC_COPY);
     CUDA_SAFE_CALL( cudaGraphicsGLRegisterBuffer(&mGraphicsResources[2], 
         mVisualQuantitiesVBO, cudaGraphicsMapFlagsNone) );
-
+    delete qData;
+    
     // allocate device memory
     CUDA_SAFE_CALL (cudaMalloc(&mdAccelerations, 2*sizef));
     CUDA_SAFE_CALL (cudaMalloc(&mdVelocities, 2*sizef));

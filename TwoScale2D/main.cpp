@@ -6,17 +6,18 @@
 #include "CUDA\cuda.h"
 #include "ParticleSystem.h"
 #include "PointRenderer.h"
+#include "QuantityRenderer.h"
 #include "WCSPHSolver.h"
 
 #define PI 3.14159265358979323846
-#define WIDTH  800
-#define HEIGHT 800
+#define WIDTH  1100
+#define HEIGHT 1100
 
 ParticleSystem* gFluidParticles;
 ParticleSystem* gFluidParticlesHigh;
 ParticleSystem* gBoundaryParticles;
-PointRenderer* gFluidRenderer;
-PointRenderer* gFluidRendererHigh;
+QuantityRenderer* gFluidRenderer;
+QuantityRenderer* gFluidRendererHigh;
 PointRenderer* gBoundaryRenderer;
 WCSPHSolver* gSolver;
 static VideoWriter gsVideoWriter("video.avi", WIDTH, HEIGHT);
@@ -68,12 +69,14 @@ void display ()
     
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+   
+   
+    //glEnable(GL_BLEND);    
     gFluidRenderer->Render();
     
-    glEnable(GL_BLEND);
+
     gFluidRendererHigh->Render();
-    glDisable(GL_BLEND);
+    //glDisable(GL_BLEND);
     
     gBoundaryRenderer->Render();
 
@@ -111,12 +114,12 @@ void keyboard (unsigned char key, int x, int y)
 
 void init ()
 {
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR);
-    glBlendColor(0.75f, 0.75f, 0.75f, 0.5f);
+    glBlendColor(0.5f, 0.5f, 0.5f, 0.5f);
 
     // Dam break simulation with about 15000 fluid particles
     try
@@ -132,7 +135,7 @@ void init ()
         float speedSound = 88.1472f;
         float alpha = 0.04f;
         float tensionCoefficient = 0.08f;
-        float timeStep = 0.00035f;
+        float timeStep = 0.00030f;
 
         gFluidParticles = CreateParticleBox
         (
@@ -154,20 +157,20 @@ void init ()
             0.1f, 0.1f, 0.0025f,321, 321, 3, 3, 
             1000.0f*0.25f*0.25f/(101.0f*151.0f)
         );
-        gFluidRenderer = new PointRenderer
+        gFluidRenderer = new QuantityRenderer
         (
-            *gFluidParticles, 0.0f, 0.0f, 1.0f,
-            1.0f, 0.0f, 0.5f, 1.0f, 0.7f, 0.006f  
+            *gFluidParticles, 0.09f, 0.09f, 0.91f,
+            0.91f, 0.005f  
         );
-        gFluidRendererHigh = new PointRenderer
+        gFluidRendererHigh = new QuantityRenderer
         (
-            *gFluidParticlesHigh, 0.0f, 0.0f, 1.0f,
-            1.0f, 1.0f, 0.5f, 0.0f, 0.6f, 0.003f       
+            *gFluidParticlesHigh, 0.09f, 0.09f, 0.91f,
+            0.91f, 0.003f       
         );
         gBoundaryRenderer = new PointRenderer
         (
-            *gBoundaryParticles, 0.0f, 0.0f, 
-            1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.006f  
+            *gBoundaryParticles, 0.09f, 0.09f, 
+            0.91f, 0.91f, 0.0f, 0.0f, 0.0f, 1.0f, 0.005f  
         );
         WCSPHConfig config
         (   
