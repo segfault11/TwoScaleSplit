@@ -1085,7 +1085,7 @@ __global__ void injectTransientHighD
 
     fluc = fluc/(4.0f*gdRestDensity);
 
-    if (false)
+    if (fluc < 0.02f)
     {
         // set high res particles to default
         for (unsigned int i = 0; i < 4; i++)
