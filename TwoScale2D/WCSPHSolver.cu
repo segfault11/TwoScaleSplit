@@ -51,8 +51,7 @@ texture<int, cudaTextureType1D, cudaReadModeElementType>
 //=============================================================================
 //  DEVICE KERNELS
 //=============================================================================
-
-
+ 
 //-----------------------------------------------------------------------------
 __device__ inline float mexicanHat2D(float x, float y)
 {
@@ -964,7 +963,8 @@ __device__ void initSubParticlesAndAddToList
     int numParticlesHigh,                   // current # of high particles             
     unsigned int id,                        // id of the low particle
     const float2& pos,
-    const float2& vel
+    const float2& vel,
+    float radius
 )
 {
     // add high res particles to the list & and mark as transient
@@ -985,17 +985,14 @@ __device__ void initSubParticlesAndAddToList
     dParticleIDsHigh[numParticlesHigh + 3] = idH;
     dStatesHigh[idH] = 0x0001;
 
-    #define DIR_LEN 0.35355339f
-    float h = gdEffectiveRadius;
-
-    dParticlePositionsHigh[8*id + 0] = pos.x + DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 1] = pos.y + DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 2] = pos.x - DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 3] = pos.y + DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 4] = pos.x + DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 5] = pos.y - DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 6] = pos.x - DIR_LEN*h;
-    dParticlePositionsHigh[8*id + 7] = pos.y - DIR_LEN*h;
+    dParticlePositionsHigh[8*id + 0] = pos.x + radius;
+    dParticlePositionsHigh[8*id + 1] = pos.y + radius;
+    dParticlePositionsHigh[8*id + 2] = pos.x - radius;
+    dParticlePositionsHigh[8*id + 3] = pos.y + radius;
+    dParticlePositionsHigh[8*id + 4] = pos.x + radius;
+    dParticlePositionsHigh[8*id + 5] = pos.y - radius;
+    dParticlePositionsHigh[8*id + 6] = pos.x - radius;
+    dParticlePositionsHigh[8*id + 7] = pos.y - radius;
 
     dParticleVelocitiesHigh[8*id + 0] = vel.x;
     dParticleVelocitiesHigh[8*id + 1] = vel.y;
@@ -1018,7 +1015,7 @@ __device__ inline void adjustPosition
     posji.x = posH.x - posL.x;
     posji.y = posH.y - posL.y;
     float dist = norm(posji);
-    float r = 1.75f*sqrt(gdFluidParticleMass/(density*PI));
+    float r = min(dist, 0.75f*sqrt(gdFluidParticleMass/(density*PI)));
 
     posH.x = posL.x + r/dist*posji.x;
     posH.y = posL.y + r/dist*posji.y;
@@ -1051,7 +1048,7 @@ __global__ void setQuantities
 
     float density = dDensities[id];
 
-    dQuantities[id] = min(abs(density - gdRestDensity), 200.0f)/200.0f;
+    dQuantities[id] = min(abs(density - gdRestDensity), 800.0f)/800.0f;
 }
 //-----------------------------------------------------------------------------
 __global__ void injectTransientHighD
@@ -1085,7 +1082,7 @@ __global__ void injectTransientHighD
 
     fluc = fluc/(4.0f*gdRestDensity);
 
-    if (fluc < 0.02f)
+    if (false)
     {
         // set high res particles to default
         for (unsigned int i = 0; i < 4; i++)
@@ -1096,6 +1093,83 @@ __global__ void injectTransientHighD
         // set state to deleted
         dStates[id] = 0x0002;
     }
+}
+//-----------------------------------------------------------------------------
+__global__ void adjustOrInjectTransientHighD
+(
+    float* const dPositionsHigh,
+    float* const dVelocitiesHigh,
+    unsigned char* const dStatesHigh,
+    int* const dParticleIDsLowNew,
+    int* const dGLParticleIDsLow,
+    int* const dTransientIDsLowNew,
+    int* const dParticleCountLow,
+    int* const dTransientCountLow,
+    const float* const dPositionsLow,
+    const float* const dVelocitiesLow,
+    const float* const dDensities,
+    const int* const dTransientIDsLow,
+    unsigned int numTransientLow
+)
+{
+    unsigned int idx = blockIdx.x*blockDim.x + threadIdx.x;
+
+    if (idx >= numTransientLow)
+    {
+        return;
+    }
+
+    // get id of the particle
+    unsigned int id = dTransientIDsLow[idx];    
+    float density = dDensities[id];
+
+    if (true)
+    {
+        dStatesHigh[4*id + 0] = 0x0000;
+        dStatesHigh[4*id + 1] = 0x0000;
+        dStatesHigh[4*id + 2] = 0x0000;
+        dStatesHigh[4*id + 3] = 0x0000;
+        return;
+    }
+
+
+    int index = atomicAdd(dParticleCountLow, 1);
+    dParticleIDsLowNew[index] = id;
+    dGLParticleIDsLow[index] = id;
+    
+    int index2 = atomicAdd(dTransientCountLow, 1);
+    dTransientIDsLowNew[index2] = id;
+
+
+
+    // get pos and vel
+    float2 pos;
+    pos.x = dPositionsLow[2*id + 0];
+    pos.y = dPositionsLow[2*id + 1];
+    float2 vel;
+    vel.x = dVelocitiesLow[2*id + 0]; 
+    vel.y = dVelocitiesLow[2*id + 1]; 
+
+    // adjust the positions of the child particles
+    for (unsigned int i = 0; i < 4; i++)
+    {
+        float2 posH;
+        posH.x = dPositionsHigh[8*id + 2*i + 0];
+        posH.y = dPositionsHigh[8*id + 2*i + 1];
+        adjustPosition(posH, pos, density);
+        dPositionsHigh[8*id + 2*i + 0] = posH.x;
+        dPositionsHigh[8*id + 2*i + 1] = posH.y;
+    }
+
+    // adjust the velocities of the child particles
+    //dVelocitiesHigh[8*id + 0] = vel.x;
+    //dVelocitiesHigh[8*id + 1] = vel.y;
+    //dVelocitiesHigh[8*id + 2] = vel.x;
+    //dVelocitiesHigh[8*id + 3] = vel.y;
+    //dVelocitiesHigh[8*id + 4] = vel.x;
+    //dVelocitiesHigh[8*id + 5] = vel.y;
+    //dVelocitiesHigh[8*id + 6] = vel.x;
+    //dVelocitiesHigh[8*id + 7] = vel.y;
 }
 //-----------------------------------------------------------------------------
 __global__ void adjustTransientHighD
@@ -1734,12 +1808,17 @@ __global__ void computeParticleAcceleration
     dAccelerations[2*id + 0] = acc.x;
     dAccelerations[2*id + 1] = acc.y;
 
+    vel.x += dt*acc.x; 
+    vel.y += dt*acc.y;
+
+    pos.x += dt*vel.x;
+    pos.y += dt*vel.y;
 
     dVisualQuantities[id] = min(1.0f/(psiSum*psiSum*gdEffectiveRadius)*
-        (ene.x*ene.x + ene.y*ene.y), 1000.0f)/1000.0f;
+        (ene.x*ene.x + ene.y*ene.y), 800.0f)/800.0f;
     
     // if particle is marked for deletion don't add it to the list
-    if (state == 0x0002)
+    if (state == 0x0001)
     {
         return;
     }
@@ -1754,7 +1833,7 @@ __global__ void computeParticleAcceleration
     }
 
     // if particle is not transient and split condition is true ...
-    if (dVisualQuantities[id] > 0.9f && state == 0x0000)
+    if (dVisualQuantities[id] == 1.0f && state == 0x0000)
     {        
         // mark as transient
         dStates[id] = 0x0001;
@@ -1765,6 +1844,10 @@ __global__ void computeParticleAcceleration
 
         // create highres particles and add to id list (high)
         int numParticlesHigh = atomicAdd(dParticleCountHigh, 4);
+
+
+        float radius = 0.5f*sqrt(gdFluidParticleMass/(2.0f*density*PI));
+
         initSubParticlesAndAddToList
         (
             dParticlePositionsHigh,
@@ -1775,16 +1858,11 @@ __global__ void computeParticleAcceleration
             numParticlesHigh,  
             id, 
             pos,
-            vel
+            vel,
+            radius
         );
     }
     
-    if (state == 0x0001)
-    {        
-        // add particle id to transient list (low)
-        int numTransient = atomicAdd(dTransientParticleCountLow, 1);
-        dTransientIDsLow[numTransient] = id;
-    }
 }
 //-----------------------------------------------------------------------------
 __global__ void computeParticleAccelerationAndAdvanceHigh
@@ -2658,7 +2736,7 @@ void WCSPHSolver::AdvanceTS ()
     this->computePressureDensityHigh(activeID);
     CUDA::CheckLastError("3");
     this->computePressureDensity(activeID);
-    this->injectTransientHigh(activeID);
+    //this->injectTransientHigh(activeID);
 
     CUDA::CheckLastError("4");
     this->computeAccelerations(activeID);
@@ -2671,6 +2749,8 @@ void WCSPHSolver::AdvanceTS ()
     this->updatePositions(activeID);
     CUDA::CheckLastError("7");
 
+
+    this->adjustOrInjectTransientHigh(activeID);
 
     // copy back the # of current particles in the list
     // update particle system information
@@ -2689,6 +2769,13 @@ void WCSPHSolver::AdvanceTS ()
         sizeof(int), 
         cudaMemcpyDeviceToHost
     ) );  
+    CUDA_SAFE_CALL( cudaMemcpy
+    (
+        &mTransientParticleCountLow, 
+        mdTransientParticleCountLow, 
+        sizeof(int),
+        cudaMemcpyDeviceToHost
+    ) );
 
 
     activeID = (activeID + 1) % 2; 
@@ -2704,9 +2791,13 @@ void WCSPHSolver::AdvanceTS ()
         static_cast<float>(mFluidParticlesHigh->mNumParticles)/mBlockDim.x
     );
 
-    this->adjustTransientHigh(activeID);
+    mGridDimTransientLow.x = static_cast<unsigned int>(std::ceil
+    (
+        static_cast<float>(mTransientParticleCountLow)/mBlockDim.x
+    ));
+
     
-    //this->setVisualQuantities(activeID);
+    this->setVisualQuantities(activeID);
 
     CUDA::CheckLastError("7");
 
@@ -2784,9 +2875,9 @@ void WCSPHSolver::computeAccelerations (unsigned char activeID)
     CUDA::Timer timer;
 
     // reset particle count to zero
-    CUDA_SAFE_CALL( cudaMemset(mdParticleCount, 0, sizeof(int)) );
+    CUDA_SAFE_CALL(cudaMemset(mdParticleCount, 0, sizeof(int)));
     CUDA_SAFE_CALL(cudaMemset(mdTransientParticleCountLow, 0, sizeof(int)));
-    CUDA_SAFE_CALL( cudaMemset(mdParticleCountHigh, 0, sizeof(int)) );
+    CUDA_SAFE_CALL(cudaMemset(mdParticleCountHigh, 0, sizeof(int)));
     
     //timer.Start();
     computeParticleAcceleration<<<mGridDim, mBlockDim>>>
@@ -3014,29 +3105,43 @@ void WCSPHSolver::computePressureDensityHigh(unsigned char activeID)
 //    CUDA_SAFE_CALL( cudaMemset(mdTransientParticleCountHigh, 0, sizeof(int)) );
 //}
 //-----------------------------------------------------------------------------
-void WCSPHSolver::adjustTransientHigh(unsigned char activeID)
+void WCSPHSolver::adjustOrInjectTransientHigh (unsigned char activeID)
 {
-    // get number of particles in transition (low) from device
-    //std::cout << ">> >>" << mdTransientParticleCountLow << std::endl;
-    CUDA_SAFE_CALL( cudaMemcpy
-    (
-        &mTransientParticleCountLow, 
-        mdTransientParticleCountLow, 
-        sizeof(int),
-        cudaMemcpyDeviceToHost
-    ) );
+    // return if there are no particles in transition (low) 
+    if (mTransientParticleCountLow == 0)
+    {
+        return;
+    }    
 
+
+    adjustOrInjectTransientHighD<<<mGridDimTransientLow, mBlockDim>>>
+    (
+        mFluidParticlesHigh->mdPositions,
+        mFluidParticlesHigh->mdVelocities,
+        mdStatesHigh,
+        mFluidParticleGrid.dParticleIDs[(activeID + 1) % 2], 
+        mFluidParticles->mdParticleIDs,
+        mdTransientIDsLow[(activeID + 1) % 2], 
+        mdParticleCount,
+        mdTransientParticleCountLow, 
+        mFluidParticles->mdPositions,
+        mFluidParticles->mdVelocities,
+        mFluidParticles->mdDensities,
+        mdTransientIDsLow[activeID],
+        mTransientParticleCountLow
+    );
+
+
+}
+//-----------------------------------------------------------------------------
+void WCSPHSolver::adjustTransientHigh (unsigned char activeID)
+{
     // return if there are no particles in transition (low) 
     if (mTransientParticleCountLow == 0)
     {
         return;
     }
 
-    // compute grid dimensions need for particles in transition (low)
-    mGridDimTransientLow.x = static_cast<unsigned int>(std::ceil
-    (
-        static_cast<float>(mTransientParticleCountLow)/mBlockDim.x
-    ));
 
     adjustTransientHighD<<<mGridDimTransientLow, mBlockDim>>>
     (

@@ -38,7 +38,7 @@ mActive(0)
 
     // visual quantities
     float* qData = new float[maxParticles];
-    for (unsigned int i = 0; i < maxParticles; i++) qData[i] = 0.0f;
+    for (unsigned int i = 0; i < maxParticles; i++) qData[i] = 1.0f;
     GL::CreateBufferObject(mVisualQuantitiesVBO, GL_ARRAY_BUFFER, sizef, qData, 
         GL_DYNAMIC_COPY);
     CUDA_SAFE_CALL( cudaGraphicsGLRegisterBuffer(&mGraphicsResources[2], 

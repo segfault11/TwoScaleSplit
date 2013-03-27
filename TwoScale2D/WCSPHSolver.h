@@ -64,17 +64,24 @@ public:
 
 private:
     inline void initBoundaries () const;
+
+    //  Low Res Methods
     inline void updateNeighborGrid (unsigned char activeID);
     inline void computePressureDensity(unsigned char activeID);
     inline void computeAccelerations(unsigned char activeID);
-    inline void updatePositions (unsigned char activeID);
-    inline void updateNeighborGridHigh (unsigned char activeID);
+    inline void updatePositions(unsigned char activeID);
+   
+    //  High Res Methods
+    inline void updateNeighborGridHigh(unsigned char activeID);
     inline void computePressureDensityHigh(unsigned char activeID);
-    inline void updatePositionsHigh (unsigned char activeID);
-    inline void relaxTransient (unsigned char activeID);
-    inline void adjustTransientHigh (unsigned char activeID);
-    inline void injectTransientHigh (unsigned char activeID);
-    inline void setVisualQuantities (unsigned char activeID);
+    inline void updatePositionsHigh(unsigned char activeID);
+
+
+    inline void adjustOrInjectTransientHigh (unsigned char activeID);
+    inline void relaxTransient(unsigned char activeID);
+    inline void adjustTransientHigh(unsigned char activeID);
+    inline void injectTransientHigh(unsigned char activeID);
+    inline void setVisualQuantities(unsigned char activeID);
 
     float mDomainOrigin[2];
     float mDomainEnd[2];
