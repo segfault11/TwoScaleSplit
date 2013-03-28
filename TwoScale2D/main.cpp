@@ -8,6 +8,7 @@
 #include "PointRenderer.h"
 #include "QuantityRenderer.h"
 #include "WCSPHSolver.h"
+#include "Rectangle.h"
 
 #define PI 3.14159265358979323846
 #define WIDTH  1100
@@ -19,7 +20,9 @@ ParticleSystem* gBoundaryParticles;
 QuantityRenderer* gFluidRenderer;
 QuantityRenderer* gFluidRendererHigh;
 PointRenderer* gBoundaryRenderer;
+static CGTK::Rectangle gsDisplayRectangle;
 WCSPHSolver* gSolver;
+
 static VideoWriter gsVideoWriter("video.avi", WIDTH, HEIGHT);
 
 void display ();
@@ -71,13 +74,11 @@ void display ()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
    
-    //glEnable(GL_BLEND);    
+    gFluidRenderer->SetDisplayRectangle(gsDisplayRectangle);
+    gFluidRendererHigh->SetDisplayRectangle(gsDisplayRectangle);
+    gBoundaryRenderer->SetDisplayRectangle(gsDisplayRectangle);
     gFluidRenderer->Render();
-    
-
-    gFluidRendererHigh->Render();
-    //glDisable(GL_BLEND);
-    
+    gFluidRendererHigh->Render();    
     gBoundaryRenderer->Render();
 
     glFlush();
@@ -104,8 +105,23 @@ void keyboard (unsigned char key, int x, int y)
 {
     switch (key) 
     {
+        case 'r':
+            gsDisplayRectangle.Scale(0.01f);
+            return;
+        case 'f':
+            gsDisplayRectangle.Scale(-0.01f);
+            return;
+        case 'a':
+            gsDisplayRectangle.Translate(-0.01f, 0.0f);
+            return;
         case 's':
-            saveScreenshot("s.bmp");
+            gsDisplayRectangle.Translate(0.0f, -0.01f);
+            return;
+        case 'd':
+            gsDisplayRectangle.Translate(0.01f, 0.0f);
+            return;
+        case 'w':
+            gsDisplayRectangle.Translate(0.0f, 0.01f);
             return;
 	    default:
 		    return; 

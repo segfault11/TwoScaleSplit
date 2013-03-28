@@ -10,6 +10,7 @@
 #include "stdutil.h"
 #include "OpenGL\OpenGL.h"
 #include "ParticleSystem.h"
+#include "Rectangle.h"
 
 class PointRenderer 
 {
@@ -21,6 +22,8 @@ public:
         float pointSize);
     ~PointRenderer ();
 
+
+    void SetDisplayRectangle (const CGTK::Rectangle& rectangle);
     void Render () const;
 
 private:

@@ -25,6 +25,7 @@
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PointRenderer.h" />
     <ClInclude Include="QuantityRenderer.h" />
+    <ClInclude Include="Rectangle.h" />
     <ClInclude Include="stdutil.h" />
     <ClInclude Include="VideoWriter\VideoWriter.h" />
     <ClInclude Include="WCSPHSolver.h" />

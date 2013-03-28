@@ -68,6 +68,20 @@ QuantityRenderer::~QuantityRenderer ()
     glDeleteProgram(mProgram);
 }
 //-----------------------------------------------------------------------------
+void QuantityRenderer::SetDisplayRectangle (const CGTK::Rectangle& rectangle)
+{
+    glUseProgram(mProgram);
+    GLint loc;
+    loc = glGetUniformLocation(mProgram, "xs");
+    glUniform1f(loc, rectangle.XS);
+    loc = glGetUniformLocation(mProgram, "ys");
+    glUniform1f(loc, rectangle.YS);
+    loc = glGetUniformLocation(mProgram, "width");
+    glUniform1f(loc, rectangle.GetWidth());
+    loc = glGetUniformLocation(mProgram, "height");
+    glUniform1f(loc, rectangle.GetHeight());
+}
+//-----------------------------------------------------------------------------
 void QuantityRenderer::Render () const
 {    
     glUseProgram(mProgram);

@@ -66,7 +66,7 @@ private:
     inline void initBoundaries () const;
 
     //  Low Res Methods
-    inline void updateNeighborGrid (unsigned char activeID);
+    inline void updateNeighborGrid(unsigned char activeID);
     inline void computePressureDensity(unsigned char activeID);
     inline void computeAccelerations(unsigned char activeID);
     inline void updatePositions(unsigned char activeID);
@@ -75,7 +75,6 @@ private:
     inline void updateNeighborGridHigh(unsigned char activeID);
     inline void computePressureDensityHigh(unsigned char activeID);
     inline void updatePositionsHigh(unsigned char activeID);
-
 
     inline void adjustOrInjectTransientHigh (unsigned char activeID);
     inline void relaxTransient(unsigned char activeID);

@@ -53,7 +53,7 @@ texture<int, cudaTextureType1D, cudaReadModeElementType>
 //=============================================================================
  
 //-----------------------------------------------------------------------------
-__device__ inline float mexicanHat2D(float x, float y)
+__device__ inline float mexicanHat2D (float x, float y)
 {
     #define MEXICAN_HAT_C 0.8673250705840776
 
@@ -1026,7 +1026,6 @@ __device__ inline void adjustPosition
 //  GLOBAL KERNELS
 //=============================================================================
 
-
 //-----------------------------------------------------------------------------
 __global__ void setQuantities
 (
@@ -1048,7 +1047,7 @@ __global__ void setQuantities
 
     float density = dDensities[id];
 
-    dQuantities[id] = min(abs(density - gdRestDensity), 800.0f)/800.0f;
+    dQuantities[id] = min(abs(density - gdRestDensity), 400.0f)/400.0f;
 }
 //-----------------------------------------------------------------------------
 __global__ void injectTransientHighD
@@ -1123,7 +1122,7 @@ __global__ void adjustOrInjectTransientHighD
     unsigned int id = dTransientIDsLow[idx];    
     float density = dDensities[id];
 
-    if (true)
+    if (false)
     {
         dStatesHigh[4*id + 0] = 0x0000;
         dStatesHigh[4*id + 1] = 0x0000;
@@ -1827,13 +1826,13 @@ __global__ void computeParticleAcceleration
     int index = atomicAdd(dParticleCount, 1);
     dParticleIDsNew[index] = id;
     
-   // if (pos.x < 0.5f && state == 0x0000)
+    //if (pos.x < 0.5f && state == 0x0000)
     {
         dGLIndices[index] = id;
     }
 
     // if particle is not transient and split condition is true ...
-    if (dVisualQuantities[id] == 1.0f && state == 0x0000)
+    if (pos.x > 0.5f && state == 0x0000)
     {        
         // mark as transient
         dStates[id] = 0x0001;
@@ -1869,6 +1868,7 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
 (
     float* const dParticlePositions, 
     float* const dParticleVelocities,
+    float* const dAccelerations,
     int* const dParticleIDsNew,
     int* const dGLIndices,
     int* const dParticleCount,
@@ -2016,6 +2016,9 @@ __global__ void computeParticleAccelerationAndAdvanceHigh
 
     pos.x += dt*vel.x;
     pos.y += dt*vel.y;
+
+    dAccelerations[2*id + 0] = acc.x;
+    dAccelerations[2*id + 1] = acc.y;
 
     dParticleVelocities[2*id + 0] = vel.x;
     dParticleVelocities[2*id + 1] = vel.y;
@@ -2990,6 +2993,7 @@ void WCSPHSolver::updatePositionsHigh (unsigned char activeID)
     (
         mFluidParticlesHigh->Positions(), 
         mFluidParticlesHigh->Velocities(), 
+        mFluidParticlesHigh->mdAccelerations,
         mFluidParticleGridHigh.dParticleIDs[(activeID + 1) % 2],
         mFluidParticlesHigh->mdParticleIDs,
         mdParticleCountHigh,

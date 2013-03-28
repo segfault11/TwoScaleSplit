@@ -10,6 +10,7 @@
 #include "stdutil.h"
 #include "OpenGL\OpenGL.h"
 #include "ParticleSystem.h"
+#include "Rectangle.h"
 
 class QuantityRenderer 
 {
@@ -20,6 +21,7 @@ public:
         float xe, float ye, float pointSize);
     ~QuantityRenderer ();
 
+    void SetDisplayRectangle (const CGTK::Rectangle& rectangle);
     void Render () const;
 
 private:

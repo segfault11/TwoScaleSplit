@@ -93,6 +93,9 @@
     <ClInclude Include="QuantityRenderer.h">
       <Filter>Renderer\QuantityRenderer</Filter>
     </ClInclude>
+    <ClInclude Include="Rectangle.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="WCSPHSolver.cu">
